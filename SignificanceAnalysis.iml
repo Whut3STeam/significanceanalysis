@@ -11,5 +11,6 @@
     <orderEntry type="library" name="guava" level="project" />
     <orderEntry type="library" name="JUnit" level="project" />
     <orderEntry type="library" name="math" level="project" />
+    <orderEntry type="library" name="fastJson" level="project" />
   </component>
 </module>
