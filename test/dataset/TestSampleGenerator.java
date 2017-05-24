@@ -19,8 +19,8 @@ public class TestSampleGenerator {
                 new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
         SampleGEN sg=new SampleGEN(filePath);
         //SampleGEN sg=new SampleGEN();
-        sg.generate(4,500,200,0.58,0.25,0.25,0.25);
-        sg.generate(3,400,200,-1,0.25,0.25,0.25);
+        sg.generate(7,500,200,0.58,0.1,0.25,0.25);
+        //sg.generate(3,400,200,-1,0.25,0.25,0.25);
         sg.saveSamples();
     }
 }
