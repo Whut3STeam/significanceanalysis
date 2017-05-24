@@ -19,5 +19,6 @@ public class TestSAIC {
         AbstractSig saic=new SAIC();
         saic.preprocess(rawData);
         saic.process(resultData);
+        System.out.println("OK");
     }
 }

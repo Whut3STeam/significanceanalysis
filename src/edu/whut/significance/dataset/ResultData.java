@@ -1,5 +1,6 @@
 package edu.whut.significance.dataset;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -7,6 +8,10 @@ import java.util.Set;
  */
 public class ResultData {
     private Set<Region> regionSet;
+
+    public ResultData(){
+        regionSet=new HashSet<>();
+    }
 
     public Set<Region> getRegionSet() {
         return regionSet;
