@@ -14,7 +14,7 @@ public class BioLogger {
     private Logger m_log;
 
     public BioLogger(String path, String filename) {
-        m_log = Logger.getLogger("significanceDetection");
+        m_log = Logger.getLogger("significanceAnalysis");
 //        m_log = Logger.getGlobal();
         m_log.setLevel(Level.ALL);
 
