@@ -46,34 +46,6 @@ public class SAIC extends AbstractSig {
         delPermute.processing();
 
         mergeResult(resultData,ampResultData,delResultData);
-//        Set<Integer> idSet=new HashSet<>();
-//        for(Region ampRegion:ampResultData.getRegionSet()){
-//            for(int i=ampRegion.getStartId();i<ampRegion.getEndId()+1;i++){
-//                idSet.add(i);
-//            }
-//        }
-//        for(Region delRegion:delResultData.getRegionSet()){
-//            for(int i=delRegion.getStartId();i<delRegion.getEndId()+1;i++){
-//                idSet.add(i);
-//            }
-//        }
-//        List<Integer> idList=new ArrayList<>(idSet);
-//        Collections.sort(idList);
-//
-//        int tempStart=idList.get(0),tempId=idList.get(0),id;
-//        for(int i=1;i<idList.size();i++){
-//            id=idList.get(i);
-//            if(id-tempId>1){
-//                Region tempRegion=new Region();
-//                tempRegion.setStartId(tempStart);
-//                tempRegion.setEndId(tempId);
-//                tempRegion.setLength(tempId-tempStart+1);
-//                resultData.getRegionSet().add(tempRegion);
-//
-//                tempStart=id;
-//            }
-//            tempId=id;
-//        }
     }
 
     //将扩增和缺失的显著性区域合并
@@ -173,9 +145,14 @@ public class SAIC extends AbstractSig {
             ArrayList<IdRegion> tempIdRegionSet=new ArrayList<>();
 
             getCandidateId(candidateIdSet);
-            getTempIdRegion(candidateIdSet, tempIdRegionSet);
-            getIdRegion(tempIdRegionSet);
-            regionMerge();
+            if(candidateIdSet.size()>0){
+                getTempIdRegion(candidateIdSet, tempIdRegionSet);
+                getIdRegion(tempIdRegionSet);
+                regionMerge();
+            }
+            else {
+                System.out.println("There are no enough CNA probes");
+            }
         }
 
         //获得不为0的Id号的集合

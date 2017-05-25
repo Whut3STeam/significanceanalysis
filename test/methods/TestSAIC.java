@@ -1,5 +1,6 @@
 package methods;
 
+import edu.whut.significance.analysis.simulationAnalysis.SimuResultAnalysis;
 import edu.whut.significance.dataset.RawData;
 import edu.whut.significance.dataset.Reader;
 import edu.whut.significance.dataset.ResultData;
@@ -15,10 +16,10 @@ public class TestSAIC {
     public void test(){
         RawData rawData=new RawData();
         ResultData resultData=new ResultData();
-        Reader.readSimulationData(rawData,"data//simulatedData//20170524111638.json");
+        Reader.readSimulationData(rawData,"data//simulatedData//20170525145029.json");
         AbstractSig saic=new SAIC();
         saic.preprocess(rawData);
         saic.process(resultData);
-        System.out.println("OK");
+        System.out.println("FÖµ£º"+new SimuResultAnalysis(rawData,resultData).getFMeasure());
     }
 }
