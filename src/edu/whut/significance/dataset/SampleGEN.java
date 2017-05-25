@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 import java.util.logging.Logger;
 
 /**
@@ -64,7 +65,26 @@ public class SampleGEN {
 
     public double[] singleSamplegenerate(int midPos,int width,double LRRVal,double sigma){
         double[] singleSample=new double[1000];
-        for(int i=0;i<midPos-width/2;i++){
+
+        //Ìí¼Ópassengers
+        int passengerStart;
+        Random rd=new Random();
+        for(int i=0;i<3;i++){
+            passengerStart=rd.nextInt(950);
+            for(int j=passengerStart;j<passengerStart+50;j++){
+                if(LRRVal>=0.58)
+                    singleSample[j]=singleSample[j]+0.2;
+                else
+                    singleSample[j]=singleSample[j]-0.4;
+            }
+        }
+
+        //Ìí¼Ódrivers
+        for(int i=midPos-width/2;i<midPos+width/2;i++){
+            singleSample[i]=singleSample[i]+LRRVal;
+        }
+
+        /*for(int i=0;i<midPos-width/2;i++){
             singleSample[i]=rdg.nextGaussian(0,sigma);
         }
         for(int i=midPos-width/2;i<midPos+width/2;i++){
@@ -72,7 +92,7 @@ public class SampleGEN {
         }
         for(int i=midPos+width/2;i<1000;i++){
             singleSample[i]=rdg.nextGaussian(0,sigma);
-        }
+        }*/
         return singleSample;
     }
 
