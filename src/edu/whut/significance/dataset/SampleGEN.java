@@ -73,15 +73,15 @@ public class SampleGEN {
             passengerStart=rd.nextInt(950);
             for(int j=passengerStart;j<passengerStart+50;j++){
                 if(LRRVal>=0.58)
-                    singleSample[j]=singleSample[j]+0.2;
+                    singleSample[j]=0.35;
                 else
-                    singleSample[j]=singleSample[j]-0.4;
+                    singleSample[j]=-0.5;
             }
         }
 
         //Ìí¼Ódrivers
         for(int i=midPos-width/2;i<midPos+width/2;i++){
-            singleSample[i]=singleSample[i]+LRRVal;
+            singleSample[i]=LRRVal;
         }
 
         /*for(int i=0;i<midPos-width/2;i++){
