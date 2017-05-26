@@ -1,14 +1,10 @@
 package edu.whut.significance.methods;
 
-import com.google.common.reflect.Parameter;
 import edu.whut.significance.dataset.RawData;
 import edu.whut.significance.dataset.Region;
 import edu.whut.significance.dataset.ResultData;
-import edu.whut.significance.methods.AbstractSig;
-import edu.whut.significance.methods.GlobalParameters;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.random.*;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 import java.util.*;
