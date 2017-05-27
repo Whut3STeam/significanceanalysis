@@ -4,9 +4,9 @@ package edu.whut.significance.methods;
  * Created by SunMing on 2017/5/24.
  */
 public class GlobalParameters {
-    private double ampThreshold=0.322;
+    private double ampThreshold = 0.322;
     //private double ampThreshold=0.1;
-    private double delThreshold=-0.415;
+    private double delThreshold = -0.415;
 
     public double getAmpThreshold() {
         return ampThreshold;

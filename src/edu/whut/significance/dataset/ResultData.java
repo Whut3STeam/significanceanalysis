@@ -20,4 +20,8 @@ public class ResultData {
     public void setRegionSet(Set<Region> regionSet) {
         this.regionSet = regionSet;
     }
+
+    public void addRegion(int start, int end ){
+        regionSet.add(new Region(start, end));
+    }
 }

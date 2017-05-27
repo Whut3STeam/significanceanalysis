@@ -12,6 +12,7 @@ import java.util.logging.*;
  */
 public class BioLogger {
     private Logger m_log;
+    private final boolean enableLoggerFile = false;
 
     public BioLogger(String path, String filename) {
         m_log = Logger.getLogger("significanceAnalysis");
@@ -23,29 +24,30 @@ public class BioLogger {
         consoleHandler.setFormatter(new BioLogHander());
         m_log.addHandler(consoleHandler);
 
-        try {
-            String logfilename;
-            if (!path.endsWith(File.separator)) {
-                logfilename = String.format("%s%s%s", path, File.separator, filename);
-            } else {
-                logfilename = String.format("%s%s", path, filename);
+        if (enableLoggerFile){
+            try {
+                String logfilename;
+                if (!path.endsWith(File.separator)) {
+                    logfilename = String.format("%s%s%s", path, File.separator, filename);
+                } else {
+                    logfilename = String.format("%s%s", path, filename);
+                }
+                //String logfilename = "/bai/ruanjun/Data/result.log";
+                System.out.println(logfilename);
+                FileHandler fileHandler = new FileHandler(logfilename, 500000, 10, true);
+
+                fileHandler.setLevel(Level.ALL);
+
+                fileHandler.setFormatter(new BioLogHander());
+                m_log.addHandler(fileHandler);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.err.println("\n\n\n" + e.getClass().getName() + ": " + e.getMessage());
+                System.exit(0);
             }
-            //String logfilename = "/bai/ruanjun/Data/result.log";
-            System.out.println(logfilename);
-            FileHandler fileHandler = new FileHandler(logfilename, 500000, 10, true);
-
-            fileHandler.setLevel(Level.ALL);
-
-            fileHandler.setFormatter(new BioLogHander());
-            m_log.addHandler(fileHandler);
-
-            m_log.setUseParentHandlers(false);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("\n\n\n" + e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
         }
 
+        m_log.setUseParentHandlers(false);
     }
 
     private class BioLogHander extends Formatter {

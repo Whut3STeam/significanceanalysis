@@ -1,12 +1,23 @@
 package edu.whut.significance.dataset;
 
+import org.w3c.dom.ranges.Range;
+
 /**
  * Created by SunMing on 2017/5/23.
  */
 public class Region {
     private int startId;
     private int endId;
-    private int length;
+//    private int length;
+
+
+    public Region() {
+    }
+
+    public Region(int startId, int endId) {
+        this.startId = startId;
+        this.endId = endId;
+    }
 
     public int getStartId(){
         return startId;
@@ -15,7 +26,7 @@ public class Region {
         return endId;
     }
     public int getLength(){
-        return length;
+        return endId - startId +1 ;
     }
 
     public void setStartId(int startId){
@@ -24,7 +35,7 @@ public class Region {
     public void setEndId(int endId){
         this.endId=endId;
     }
-    public void setLength(int length){
-        this.length=length;
-    }
+//    public void setLength(int length){
+//        this.length=length;
+//    }
 }
