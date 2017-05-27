@@ -360,7 +360,7 @@ public class SAIC extends AbstractSig {
                     //tempUScore += getSum(oneRawDataMatrix.getRow(i));
                     tempUScore += StatUtils.sum(oneRawDataMatrix.getRow(i));
                 }
-                tempUScore = Math.abs(tempUScore / (cnaLength * (colNum - 1)));
+                tempUScore = Math.abs(tempUScore / (cnaLength * colNum ));
 
                 //UScore.add(tempUScore);
                 region.setuValue(tempUScore);
@@ -400,8 +400,6 @@ public class SAIC extends AbstractSig {
                     }
                     randomPermuteMatrix.setColumn(j, newCol);
                 }
-
-
 
 //                int maxIndex = permuteCNARegions.size();
 //                int index, len, cnaStart;
@@ -443,57 +441,80 @@ public class SAIC extends AbstractSig {
             }
         }
 
-        //找最大U值
+        //找最大U值，在第 i 次实验
         public void findMaxUScore(RealMatrix randomPermuteMatrix, double[] maxUScoreAti) {
             double tempUScore;
             int probeNum = randomPermuteMatrix.getColumnDimension();
             double[] probeSum = new double[probeNum];
-            int i, j, k;
-            int len;
-            int endPos;
+//            int i, j, k;
+//            int len;
+//            int endPos;
 
             //计算每个探针的和
-            for (i = 0; i < probeNum; i++) {
-                probeSum[i] = 0;
-                probeSum[i] += StatUtils.sum(randomPermuteMatrix.getRow(i));
-                probeSum[i] = Math.abs(probeSum[i]);
+            probeSum[0] = 0;
+            for (int i = 1; i < probeNum; i++) {
+                probeSum[i] = probeSum[i - 1] + StatUtils.sum(randomPermuteMatrix.getRow(i));
             }
 
             List<Integer> uniqueLengthSet = new ArrayList<>(lengthSet);
-            //计算第一个唯一长度的U值
-            len = uniqueLengthSet.get(0);
-            tempUScore = 0.0;
-            maxUScoreAti[0] = 0.0;
-            endPos = probeNum - len;
-            double[] regionSum = new double[endPos];
-            for (j = 0; j < endPos; j++) {
-                for (k = j; k < j + len; k++) {
-                    tempUScore += probeSum[k];
-                }
-                regionSum[j] = Math.abs(tempUScore);
-                tempUScore = Math.abs(tempUScore / ((colNum - 1) * len));
-                if (tempUScore > maxUScoreAti[0]) {
-                    maxUScoreAti[0] = tempUScore;
+            for (int length : uniqueLengthSet){
+                int index = uniqueLengthSet.indexOf(length);
+                maxUScoreAti[index] = 0.0;
+
+                int endPos = probeNum - length;
+                int front, back;
+
+                for (front = 0, back = front + length; back < endPos; front++, back++){
+                    double regionSum = probeSum[back] - probeSum[front];
+                    tempUScore = Math.abs(regionSum) / (colNum * length);
+                    if (tempUScore > maxUScoreAti[index]) {
+                        maxUScoreAti[index] = tempUScore;
+                    }
                 }
             }
 
-            //计算余下唯一长度的U值
-            for (i = 1; i < uniqueLengthSet.size(); i++) {
-                len = uniqueLengthSet.get(i);
-                endPos = probeNum - len;
-                maxUScoreAti[i] = 0.0;
-                for (j = 0; j < endPos; j++) {
-                    tempUScore = regionSum[j];
-                    for (k = j + uniqueLengthSet.get(i - 1); k < j + len; k++) {
-                        tempUScore += probeSum[k];
-                    }
-                    regionSum[j] = tempUScore;
-                    tempUScore = tempUScore / ((colNum - 1) * len);
-                    if (tempUScore > maxUScoreAti[i]) {
-                        maxUScoreAti[i] = tempUScore;
-                    }
-                }
-            }
+//            //计算每个探针的和
+//            for (i = 0; i < probeNum; i++) {
+//                probeSum[i] = 0;
+//                probeSum[i] += StatUtils.sum(randomPermuteMatrix.getRow(i));
+//                probeSum[i] = Math.abs(probeSum[i]);
+//            }
+//
+//            List<Integer> uniqueLengthSet = new ArrayList<>(lengthSet);
+//            //计算第一个唯一长度的U值
+//            len = uniqueLengthSet.get(0);
+//            tempUScore = 0.0;
+//            maxUScoreAti[0] = 0.0;
+//            endPos = probeNum - len;
+//            double[] regionSum = new double[endPos];
+//            for (j = 0; j < endPos; j++) {
+//                for (k = j; k < j + len; k++) {
+//                    tempUScore += probeSum[k];
+//                }
+//                regionSum[j] = Math.abs(tempUScore);
+//                tempUScore = Math.abs(tempUScore / ((colNum - 1) * len));
+//                if (tempUScore > maxUScoreAti[0]) {
+//                    maxUScoreAti[0] = tempUScore;
+//                }
+//            }
+
+//            //计算余下唯一长度的U值
+//            for (i = 1; i < uniqueLengthSet.size(); i++) {
+//                len = uniqueLengthSet.get(i);
+//                endPos = probeNum - len;
+//                maxUScoreAti[i] = 0.0;
+//                for (j = 0; j < endPos; j++) {
+//                    tempUScore = regionSum[j];
+//                    for (k = j + uniqueLengthSet.get(i - 1); k < j + len; k++) {
+//                        tempUScore += probeSum[k];
+//                    }
+//                    regionSum[j] = tempUScore;
+//                    tempUScore = tempUScore / ((colNum - 1) * len);
+//                    if (tempUScore > maxUScoreAti[i]) {
+//                        maxUScoreAti[i] = tempUScore;
+//                    }
+//                }
+//            }
         }
 
         //排除SCAs并更新permuteCNARegions
