@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="math">
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/lib/math" />
+      <root url="jar://$PROJECT_DIR$/lib/math/commons-math3-3.6.1.jar!/" />
     </CLASSES>
-    <JAVADOC />
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/math/commons-math3-3.6.1-javadoc.jar!/" />
+    </JAVADOC>
     <SOURCES>
-      <root url="file://$PROJECT_DIR$/lib/math" />
+      <root url="jar://$PROJECT_DIR$/lib/math/commons-math3-3.6.1-sources.jar!/" />
     </SOURCES>
-    <jarDirectory url="file://$PROJECT_DIR$/lib/math" recursive="false" />
-    <jarDirectory url="file://$PROJECT_DIR$/lib/math" recursive="false" type="SOURCES" />
   </library>
 </component>

@@ -22,7 +22,7 @@ public class SAIC extends AbstractSig {
     public void preprocess(RawData rawData){
         rawMatrix=rawData.getDataMatrix().transpose();
         rowNum=rawMatrix.getRowDimension();
-        colNum=rawMatrix.getRow(0).length;
+        colNum=rawMatrix.getColumnDimension();
     }
 
     public void process(ResultData resultData){
@@ -353,7 +353,7 @@ public class SAIC extends AbstractSig {
                     int randomInt=0;
                     int pStart=0;
 
-                    //在每个样本之间进行交换
+                    //在每个样本内部进行交换
                     for(int k=0;k<permuteCNARegions.size();k++){
 
                         //生成不重复的随机数
