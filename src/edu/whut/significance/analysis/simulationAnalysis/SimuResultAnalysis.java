@@ -32,19 +32,19 @@ public class SimuResultAnalysis {
     private double recall;//召回率
     private double FMeasure;//F值
 
-    public SimuResultAnalysis(RawData rawData,ResultData resultData){
-        this.rawData=rawData;
-        this.resultData=resultData;
-        rawMatrix=rawData.getDataMatrix();
-        GlobalParameters globalParameters=new GlobalParameters();
-        ampThreshold=globalParameters.getAmpThreshold();
-        delThreshold=globalParameters.getDelThreshold();
-        probeNum=rawMatrix.getColumnDimension();
-        sampleNum=rawMatrix.getRowDimension()-1;
-        PArray =new boolean[probeNum];
-        TArray =new boolean[probeNum];
-        P=0;
-        T=0;
+    public SimuResultAnalysis(RawData rawData, ResultData resultData) {
+        this.rawData = rawData;
+        this.resultData = resultData;
+        rawMatrix = rawData.getDataMatrix();
+        GlobalParameters globalParameters = new GlobalParameters();
+        ampThreshold = globalParameters.getAmpThreshold();
+        delThreshold = globalParameters.getDelThreshold();
+        probeNum = rawMatrix.getColumnDimension();
+        sampleNum = rawMatrix.getRowDimension();
+        PArray = new boolean[probeNum];
+        TArray = new boolean[probeNum];
+        P = 0;
+        T = 0;
         analysis();
     }
 
@@ -52,11 +52,11 @@ public class SimuResultAnalysis {
         return FMeasure;
     }
 
-    public void analysis(){
+    public void analysis() {
         //根据原始数据初始化P
-        for(int i=0;i<probeNum;i++){
-            for(int j=1;j<sampleNum+1;j++){
-                if(rawMatrix.getEntry(j,i)>ampThreshold||rawMatrix.getEntry(j,i)<delThreshold ) {
+        for (int i = 0; i < probeNum; i++) {
+            for (int j = 0; j < sampleNum; j++) {
+                if (rawMatrix.getEntry(j, i) > ampThreshold || rawMatrix.getEntry(j, i) < delThreshold) {
                     PArray[i] = true;
                     P++;
                     break;
@@ -65,31 +65,29 @@ public class SimuResultAnalysis {
         }
 
         //根据结果数据初始化T
-        for(Region resultRegion:resultData.getRegionSet()){
-            for(int i=resultRegion.getStartId();i<=resultRegion.getEndId();i++){
-                TArray[i]=true;
+        for (Region resultRegion : resultData.getRegionSet()) {
+            for (int i = resultRegion.getStartId(); i <= resultRegion.getEndId(); i++) {
+                TArray[i] = true;
                 T++;
             }
         }
 
         //给TP，FP，FN赋值
-        for(int i=0;i<probeNum;i++){
-            if(PArray[i]&&TArray[i]){
+        for (int i = 0; i < probeNum; i++) {
+            if (PArray[i] && TArray[i]) {
                 TP++;
-            }
-            else if((!PArray[i])&&TArray[i]){
+            } else if ((!PArray[i]) && TArray[i]) {
                 FP++;
-            }
-            else if(PArray[i]&&(!TArray[i])){
+            } else if (PArray[i] && (!TArray[i])) {
                 FN++;
             }
         }
 
         //计算准确率，召回率
-        precision=(double)TP/(TP+FP);
-        recall=(double)TP/(TP+FN);
+        precision = (double) TP / (TP + FP);
+        recall = (double) TP / (TP + FN);
 
         //计算F值
-        FMeasure=2*precision*recall/(precision+recall);
+        FMeasure = 2 * precision * recall / (precision + recall);
     }
 }
