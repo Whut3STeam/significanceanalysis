@@ -16,7 +16,7 @@ public class TestSAIC {
     public void test(){
         RawData rawData=new RawData();
         ResultData resultData=new ResultData();
-        Reader.readSimulationData(rawData,"data//simulatedData//20170525145029.json");
+        Reader.readSimulationData(rawData,"data//simulatedData//20170526154829.json");
         AbstractSig saic=new SAIC();
         saic.preprocess(rawData);
         saic.process(resultData);

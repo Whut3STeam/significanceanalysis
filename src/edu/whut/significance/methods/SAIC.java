@@ -367,8 +367,10 @@ public class SAIC extends AbstractSig {
                         cnaStart=permuteCNARegions.get(index).getIdRegion().getStart();
 
                         //根据序号和原有矩阵更新交换矩阵
+//                        randomPermuteMatrix.setSubMatrix(
+//                                oneRawDataMatrix.getSubMatrix(cnaStart-pStart,cnaStart+len-pStart-1,j,j).getData(),pStart,j);
                         randomPermuteMatrix.setSubMatrix(
-                                oneRawDataMatrix.getSubMatrix(cnaStart-pStart,cnaStart+len-pStart-1,j,j).getData(),pStart,j);
+                                  oneRawDataMatrix.getSubMatrix(cnaStart,cnaStart+len-1,j,j).getData(),pStart,j);
                         /*for(int m=pStart;m<(pStart+len);m++){
                             randomPermuteMatrix[m][j]=candidateRawDatas.get(cnaStart+m-pStart).getData()[j];
                         }*/
