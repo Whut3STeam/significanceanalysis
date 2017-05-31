@@ -84,6 +84,12 @@ public class SAIC extends AbstractSig {
             }
             tempId = id;
         }
+
+        for (Region region : resultData.getRegionSet()){
+            int start = region.getStartId();
+            int end = region.getEndId();
+            m_log.info(String.format("Region [%d : %d : %d] Length = %d",start,(start + end)>>1,end, region.getLength()));
+        }
     }
 
     public RealMatrix[] classify(RealMatrix rawMatrix) {
@@ -342,7 +348,7 @@ public class SAIC extends AbstractSig {
                 loopFlag = SCAExclude(maxUScore, permuteCNARegions);
             }
             calPScore(maxUScore);
-            getResultDatas();
+            getResultData();
         }
 
         //计算所有CNA单元的U值
@@ -618,8 +624,9 @@ public class SAIC extends AbstractSig {
 
         //get ResultDatas and update the UScore,PScore and SCATag of the CNARegionSet
         //获得结果并更新CNARegionSet的U值，P值和SCATag
-        public void getResultDatas() {
-            double pScoreThreshold = Parameters.sigValueThreshold;
+        public void getResultData() {
+            double pScoreThreshold = Parameters
+                    .sigValueThreshold;
             Set<Region> tempResultRegions = new HashSet<>();
 
             for (CNARegion region : CNARegionSet) {
