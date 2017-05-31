@@ -74,6 +74,13 @@ public class SAIC extends AbstractSig {
             }
             tempId=id;
         }
+        if(tempId==idList.get(idList.size()-1)){
+            Region tempRegion=new Region();
+            tempRegion.setStartId(tempStart);
+            tempRegion.setEndId(tempId);
+            tempRegion.setLength(tempId-tempStart+1);
+            resultData.getRegionSet().add(tempRegion);
+        }
     }
 
     public RealMatrix[] classify(RealMatrix rawMatrix){
@@ -384,7 +391,7 @@ public class SAIC extends AbstractSig {
         //ÕÒ×î´óUÖµ
         public void findMaxUScore(RealMatrix randomPermuteMatrix,double[] maxUScoreAti){
             double tempUScore;
-            int probeNum=randomPermuteMatrix.getColumnDimension();
+            int probeNum=randomPermuteMatrix.getRowDimension();
             double[] probeSum=new double[probeNum];
             int i,j,k;
             int len;
