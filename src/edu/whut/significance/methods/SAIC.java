@@ -524,6 +524,7 @@ public class SAIC extends AbstractSig {
 //                m_log.info(i+"\t\t"+tempCNARegion.getIdRegion().getStart()+"\t\t"+tempCNARegion.getIdRegion().getEnd()+"\t\t"
 //                        +tempCNARegion.getLength()+"\t\t"+tempCNARegion.getuValue()+"\t\t"+tempCNARegion.getpValue()+"\t\t"
 //                        +tempCNARegion.getSCATag());
+                System.out.println(tempCNARegion.toString());
             }
             oneResultData.setRegionSet(tempResultRegions);
         }
@@ -592,6 +593,10 @@ public class SAIC extends AbstractSig {
         }
         public void setSCATag(int SCATag){
             this.SCATag=SCATag;
+        }
+        public String toString(){
+            return "start:"+idRegion.getStart()+";\tend:"+idRegion.getEnd()+";\tUValue;"+uValue
+                    +";\t\tPValue:"+pValue+";\t\tSCATag:"+SCATag;
         }
     }
 
