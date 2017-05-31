@@ -444,7 +444,7 @@ public class SAIC extends AbstractSig {
         }
 
         //排除SCAs并更新permuteCNARegions
-        public boolean SCAExclude(double[][] maxUScore,ArrayList<CNARegion> permuteCNARegions){
+        public boolean SCAExclude(double[][] maxUScore,List<CNARegion> permuteCNARegions){
             double sigValue;
             int index;
             boolean flag = false;
@@ -453,16 +453,24 @@ public class SAIC extends AbstractSig {
             double sigValueThreshold=Parameters.sigValueThreshold;
 
             int permuteSize=permuteCNARegions.size();
-            ArrayList<Integer> tempLengthSet=new ArrayList<>(lengthSet_copy);
+            List<Integer> tempLengthSet=new ArrayList<>(lengthSet_copy);
 
+            //List<Integer> tempRemoveId=new ArrayList<>();
+            Iterator<CNARegion> cnaIter=permuteCNARegions.iterator();
+            Iterator<Integer> lenIter=lengthSet_copy.iterator();
+            Iterator<Double> uIter=UScore_copy.iterator();
             //根据长度搜索CNA单元的U值
             for (int i=0;i<permuteSize;i++){
                 sigValue=0.0;
-                index=uniqueLengthSet.indexOf(lengthSet_copy.get(i));
 
-                //累积大于U值得最大U值得个数
+                CNARegion tempCNA=cnaIter.next();
+                int len=lenIter.next();
+                double u=uIter.next();
+                index=uniqueLengthSet.indexOf(len);
+
+                //累积大于U值的最大U值的个数
                 for(int j=0;j<permuteNum;j++){
-                    if(maxUScore[j][index]>UScore.get(i)){
+                    if(maxUScore[j][index]>u){
                         sigValue++;
                     }
                 }
@@ -472,12 +480,23 @@ public class SAIC extends AbstractSig {
                     flag=true;
                     if(permuteSize-tempLengthSet.get(i)>maxLen)
                         permuteProbeSize-=tempLengthSet.get(i);
-                    permuteCNARegions.remove(i);
-                    UScore_copy.remove(i);
-                    lengthSet_copy.remove(i);
+//                    permuteCNARegions.remove(i);
+//                    UScore_copy.remove(i);
+//                    lengthSet_copy.remove(i);
+//                    tempRemoveId.add(i);
+                    cnaIter.remove();
+                    lenIter.remove();
+                    uIter.remove();
                     permuteSize=permuteCNARegions.size();
                 }
             }
+//            for(int i:tempRemoveId){
+//                permuteCNARegions.remove(i);
+//                UScore_copy.remove(i);
+//                lengthSet_copy.remove(i);
+//            }
+            //permuteSize=permuteCNARegions.size();
+
             return flag;
         }
 
