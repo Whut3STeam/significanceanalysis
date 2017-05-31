@@ -77,7 +77,6 @@ public class SAIC extends AbstractSig {
                 Region tempRegion = new Region();
                 tempRegion.setStartId(tempStart);
                 tempRegion.setEndId(tempId);
-                //tempRegion.setLength(tempId - tempStart + 1);
                 resultData.getRegionSet().add(tempRegion);
 
                 tempStart = id;
@@ -85,10 +84,17 @@ public class SAIC extends AbstractSig {
             tempId = id;
         }
 
-        for (Region region : resultData.getRegionSet()){
+        if (tempId == idList.get(idList.size() - 1)) {
+            Region tempRegion = new Region();
+            tempRegion.setStartId(tempStart);
+            tempRegion.setEndId(tempId);
+            resultData.getRegionSet().add(tempRegion);
+        }
+
+        for (Region region : resultData.getRegionSet()) {
             int start = region.getStartId();
             int end = region.getEndId();
-            m_log.info(String.format("Region [%d : %d : %d] Length = %d",start,(start + end)>>1,end, region.getLength()));
+            m_log.info(String.format("Region [%d : %d : %d] Length = %d", start, (start + end) >> 1, end, region.getLength()));
         }
     }
 
@@ -259,7 +265,7 @@ public class SAIC extends AbstractSig {
             for (IdRegion tempIdRegion : tempIdRegionSet) {
                 tempStart = tempIdRegion.getStart();
                 tempEnd = tempIdRegion.getEnd();
-                for (tempId =  tempStart;  tempId < tempEnd; tempId++) {
+                for (tempId = tempStart; tempId < tempEnd; tempId++) {
                     peaCorCoe = pearsonsCorrelation.correlation(oneRawDataMatrix.getRow(tempId),
                             oneRawDataMatrix.getRow(tempId + 1));
                     if (peaCorCoe < Parameters.pccThreshold) {
@@ -366,7 +372,7 @@ public class SAIC extends AbstractSig {
                     //tempUScore += getSum(oneRawDataMatrix.getRow(i));
                     tempUScore += StatUtils.sum(oneRawDataMatrix.getRow(i));
                 }
-                tempUScore = Math.abs(tempUScore / (cnaLength * colNum ));
+                tempUScore = Math.abs(tempUScore / (cnaLength * colNum));
 
                 //UScore.add(tempUScore);
                 region.setuValue(tempUScore);
@@ -384,7 +390,7 @@ public class SAIC extends AbstractSig {
         //CNA单元交换，生成最大U值矩阵
         public void permute(List<CNARegion> permuteCNARegions, double[][] maxUScore) {
             List<Integer> idArray = new LinkedList<>();
-            for (int i = 0; i <permuteCNARegions.size(); i++){
+            for (int i = 0; i < permuteCNARegions.size(); i++) {
                 idArray.add(i);
             }
 
@@ -397,7 +403,7 @@ public class SAIC extends AbstractSig {
                     double[] orignalCol = oneRawDataMatrix.getColumn(j);
 
                     int k = 0;
-                    for (int id : idArray){
+                    for (int id : idArray) {
                         CNARegion region = permuteCNARegions.get(id);
                         int begin = region.getIdRegion().getStart();
                         int len = region.getLength();
@@ -450,27 +456,23 @@ public class SAIC extends AbstractSig {
         //找最大U值，在第 i 次实验
         public void findMaxUScore(RealMatrix randomPermuteMatrix, double[] maxUScoreAti) {
             double tempUScore;
-            int probeNum = randomPermuteMatrix.getColumnDimension();
-            double[] probeSum = new double[probeNum];
-//            int i, j, k;
-//            int len;
-//            int endPos;
-
+            int probeNum = randomPermuteMatrix.getRowDimension();
+            double[] probeSum = new double[probeNum + 1];
             //计算每个探针的和
             probeSum[0] = 0;
-            for (int i = 1; i < probeNum; i++) {
+            for (int i = 1; i < probeNum + 1; i++) {
                 probeSum[i] = probeSum[i - 1] + StatUtils.sum(randomPermuteMatrix.getRow(i - 1));
             }
 
             List<Integer> uniqueLengthSet = new ArrayList<>(lengthSet);
-            for (int length : uniqueLengthSet){
+            for (int length : uniqueLengthSet) {
                 int index = uniqueLengthSet.indexOf(length);
                 maxUScoreAti[index] = 0.0;
 
-                int endPos = probeNum - length;
+                int endPos = probeNum - length + 1;
                 int front, back;
 
-                for (front = 0, back = front + length; back < endPos; front++, back++){
+                for (front = 0, back = front + length; back < endPos; front++, back++) {
                     double regionSum = probeSum[back] - probeSum[front];
                     tempUScore = Math.abs(regionSum) / (colNum * length);
                     if (tempUScore > maxUScoreAti[index]) {
@@ -478,49 +480,59 @@ public class SAIC extends AbstractSig {
                     }
                 }
             }
-
+//            double tempUScore;
+//            int probeNum=randomPermuteMatrix.getRowDimension();
+//            double[] probeSum=new double[probeNum];
+//            int i,j,k;
+//            int len;
+//            int endPos;
+//
 //            //计算每个探针的和
-//            for (i = 0; i < probeNum; i++) {
-//                probeSum[i] = 0;
-//                probeSum[i] += StatUtils.sum(randomPermuteMatrix.getRow(i));
-//                probeSum[i] = Math.abs(probeSum[i]);
+//            for(i=0;i<probeNum;i++){
+//                probeSum[i]=0;
+//                probeSum[i]+=getSum(randomPermuteMatrix.getRow(i));
+//                /*for(j=0;j<colNum-1;j++){
+//                    probeSum[i]+=randomPermuteMatrix[i][j];
+//                }*/
+//                probeSum[i]=Math.abs(probeSum[i]);
 //            }
 //
-//            List<Integer> uniqueLengthSet = new ArrayList<>(lengthSet);
 //            //计算第一个唯一长度的U值
-//            len = uniqueLengthSet.get(0);
-//            tempUScore = 0.0;
-//            maxUScoreAti[0] = 0.0;
-//            endPos = probeNum - len;
-//            double[] regionSum = new double[endPos];
-//            for (j = 0; j < endPos; j++) {
-//                for (k = j; k < j + len; k++) {
-//                    tempUScore += probeSum[k];
+//            List<Integer> uniqueLengthSet = new ArrayList<>(lengthSet);
+//            len=uniqueLengthSet.get(0);
+//            tempUScore=0.0;
+//            maxUScoreAti[0]=0.0;
+//            endPos=probeNum-len;
+//            double[] regionSum=new double[endPos];
+//            for (j=0;j<endPos;j++){
+//                for (k=j;k<j+len;k++){
+//                    tempUScore+=probeSum[k];
 //                }
-//                regionSum[j] = Math.abs(tempUScore);
-//                tempUScore = Math.abs(tempUScore / ((colNum - 1) * len));
-//                if (tempUScore > maxUScoreAti[0]) {
-//                    maxUScoreAti[0] = tempUScore;
+//                regionSum[j]=Math.abs(tempUScore);
+//                tempUScore=Math.abs(tempUScore/((colNum)*len));
+//                if(tempUScore>maxUScoreAti[0]){
+//                    maxUScoreAti[0]=tempUScore;
 //                }
 //            }
 //
 //            //计算余下唯一长度的U值
-//            for (i = 1; i < uniqueLengthSet.size(); i++) {
-//                len = uniqueLengthSet.get(i);
-//                endPos = probeNum - len;
-//                maxUScoreAti[i] = 0.0;
-//                for (j = 0; j < endPos; j++) {
-//                    tempUScore = regionSum[j];
-//                    for (k = j + uniqueLengthSet.get(i - 1); k < j + len; k++) {
-//                        tempUScore += probeSum[k];
+//            for(i=1;i<uniqueLengthSet.size();i++){
+//                len=uniqueLengthSet.get(i);
+//                endPos=probeNum-len;
+//                maxUScoreAti[i]=0.0;
+//                for (j=0;j<endPos;j++){
+//                    tempUScore=regionSum[j];
+//                    for (k=j+uniqueLengthSet.get(i-1);k<j+len;k++){
+//                        tempUScore+=probeSum[k];
 //                    }
-//                    regionSum[j] = tempUScore;
-//                    tempUScore = tempUScore / ((colNum - 1) * len);
-//                    if (tempUScore > maxUScoreAti[i]) {
-//                        maxUScoreAti[i] = tempUScore;
+//                    regionSum[j]=tempUScore;
+//                    tempUScore=tempUScore/((colNum)*len);
+//                    if(tempUScore>maxUScoreAti[i]){
+//                        maxUScoreAti[i]=tempUScore;
 //                    }
 //                }
 //            }
+
         }
 
         //排除SCAs并更新permuteCNARegions
@@ -537,7 +549,7 @@ public class SAIC extends AbstractSig {
 
             //根据长度搜索CNA单元的U值
             Iterator<CNARegion> itr = permuteCNARegions.iterator();
-            while (itr.hasNext()){
+            while (itr.hasNext()) {
                 CNARegion region = itr.next();
                 sigValue = 0.0;
                 index = tempLengthSet.indexOf(region.getLength());
@@ -593,7 +605,8 @@ public class SAIC extends AbstractSig {
             int index;
             ArrayList<Integer> uniqueLengthSet = new ArrayList<>(lengthSet);
 
-            for (CNARegion region : CNARegionSet){
+            m_log.info("<<<< all CNARegion >>>>");
+            for (CNARegion region : CNARegionSet) {
                 pValue = 0.0;
                 index = uniqueLengthSet.indexOf(region.getLength());
 
@@ -605,6 +618,7 @@ public class SAIC extends AbstractSig {
 
                 pValue /= (Parameters.permuteNum + 1);
                 region.setpValue(pValue);
+                m_log.info("\t>>>>" + region.toString());
             }
 
 //
@@ -627,13 +641,14 @@ public class SAIC extends AbstractSig {
         public void getResultData() {
             double pScoreThreshold = Parameters
                     .sigValueThreshold;
-            Set<Region> tempResultRegions = new HashSet<>();
+            //Set<Region> tempResultRegions = new HashSet<>();
 
             for (CNARegion region : CNARegionSet) {
                 region.setSCATag(0);
                 if (region.getpValue() < pScoreThreshold) {
                     region.setSCATag(1);
                     oneResultData.addRegion(region.getIdRegion().getStart(), region.getIdRegion().getEnd());
+                    m_log.info(region.toString());
                 }
             }
         }
@@ -684,6 +699,14 @@ public class SAIC extends AbstractSig {
 
         public void setEnd(int end) {
             this.end = end;
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "start=" + start +
+                    ", end=" + end +
+                    '}';
         }
     }
 
@@ -742,6 +765,11 @@ public class SAIC extends AbstractSig {
 
         public void setSCATag(int SCATag) {
             this.SCATag = SCATag;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("CNARegion{ %s, uValue = %.4f, pValue = %.4e }", idRegion, uValue, pValue);
         }
     }
 
