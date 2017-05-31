@@ -37,11 +37,11 @@ public class SampleGEN {
         exampleJ.samples=new ArrayList<>();
     }
 
-    public void generate(int number,int midPos,int width,double LRRVal,double sigma,double alpha,double beta){
+    public void generate(int length,int number,int midPos,int width,double LRRVal,double sigma,double alpha,double beta){
         ExampleJ.Sample sample=new ExampleJ.Sample();
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
         sample.id=df.format(new Date());
-        sample.length=1000;
+        sample.length=length;
         sample.value=0;
         sample.count=number;
         sample.sigma=sigma;
@@ -51,11 +51,11 @@ public class SampleGEN {
         sample.windows.value=LRRVal;
         sample.windows.alpha=alpha;
         sample.windows.beta=beta;
-        sample.data=new double[number][1000];
+        sample.data=new double[number][sample.length];
 
-        double[] singleSample=new double[1000];
+        double[] singleSample=new double[sample.length];
         for(int i=0;i<number;i++) {
-            sample.data[i] = singleSamplegenerate((int) (midPos + width * rdg.nextGaussian(0, beta)),
+            sample.data[i] = singleSamplegenerate(sample.length,(int) (midPos + width * rdg.nextGaussian(0, beta)),
                     (int) (width + rdg.nextGaussian(1, alpha * width)),
                     LRRVal, sigma);
         }
@@ -63,14 +63,14 @@ public class SampleGEN {
     }
 
 
-    public double[] singleSamplegenerate(int midPos,int width,double LRRVal,double sigma){
-        double[] singleSample=new double[1000];
+    public double[] singleSamplegenerate(int length,int midPos,int width,double LRRVal,double sigma){
+        double[] singleSample=new double[length];
 
         //Ìí¼Ópassengers
         int passengerStart;
         Random rd=new Random();
         for(int i=0;i<3;i++){
-            passengerStart=rd.nextInt(950);
+            passengerStart=rd.nextInt(1950);
             for(int j=passengerStart;j<passengerStart+50;j++){
                 if(LRRVal>=0.58)
                     singleSample[j]=0.35;

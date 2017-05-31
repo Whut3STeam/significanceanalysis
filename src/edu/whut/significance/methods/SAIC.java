@@ -614,7 +614,7 @@ public class SAIC extends AbstractSig {
             this.SCATag=SCATag;
         }
         public String toString(){
-            return "start:"+idRegion.getStart()+";\tend:"+idRegion.getEnd()+";\tUValue;"+uValue
+            return "id:"+cnaId+"\tstart:"+idRegion.getStart()+";\tend:"+idRegion.getEnd()+";\tUValue;"+uValue
                     +";\t\tPValue:"+pValue+";\t\tSCATag:"+SCATag;
         }
     }
