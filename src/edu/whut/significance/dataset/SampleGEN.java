@@ -70,7 +70,7 @@ public class SampleGEN {
         int passengerStart;
         Random rd=new Random();
         for(int i=0;i<3;i++){
-            passengerStart=rd.nextInt(1950);
+            passengerStart=rd.nextInt(length-50);
             for(int j=passengerStart;j<passengerStart+50;j++){
                 if(LRRVal>=0.58)
                     singleSample[j]=0.35;
