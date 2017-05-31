@@ -41,7 +41,7 @@ public class SampleGEN {
         ExampleJ.Sample sample=new ExampleJ.Sample();
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
         sample.id=df.format(new Date());
-        sample.length=1000;
+        sample.length=2000;
         sample.value=0;
         sample.count=number;
         sample.sigma=sigma;
@@ -51,9 +51,9 @@ public class SampleGEN {
         sample.windows.value=LRRVal;
         sample.windows.alpha=alpha;
         sample.windows.beta=beta;
-        sample.data=new double[number][1000];
+        sample.data=new double[number][2000];
 
-        double[] singleSample=new double[1000];
+        double[] singleSample=new double[2000];
         for(int i=0;i<number;i++) {
             sample.data[i] = singleSamplegenerate((int) (midPos + width * rdg.nextGaussian(0, beta)),
                     (int) (width + rdg.nextGaussian(1, alpha * width)),
@@ -64,7 +64,7 @@ public class SampleGEN {
 
 
     public double[] singleSamplegenerate(int midPos,int width,double LRRVal,double sigma){
-        double[] singleSample=new double[1000];
+        double[] singleSample=new double[2000];
 
         //Ìí¼Ópassengers
         int passengerStart;

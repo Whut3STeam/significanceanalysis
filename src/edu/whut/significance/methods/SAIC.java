@@ -91,11 +91,15 @@ public class SAIC extends AbstractSig {
             resultData.getRegionSet().add(tempRegion);
         }
 
+        StringBuilder sb = new StringBuilder();
+        sb.append("all regions for drawing : ");
         for (Region region : resultData.getRegionSet()) {
             int start = region.getStartId();
             int end = region.getEndId();
             m_log.info(String.format("Region [%d : %d : %d] Length = %d", start, (start + end) >> 1, end, region.getLength()));
+            sb.append(String.format("%d, %d, ",start,end));
         }
+        m_log.info(sb.substring(0, sb.length() - 2));
     }
 
     public RealMatrix[] classify(RealMatrix rawMatrix) {

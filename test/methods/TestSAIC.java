@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
         RawData rawData = new RawData();
         ResultData resultData = new ResultData();
-        Reader.readSimulationData(rawData, "data//simulatedData//20170526154829.json");
+        Reader.readSimulationData(rawData, "data//simulatedData//20170531160338.json");
         Logger.getLogger("significanceAnalysis").info(String.format("Input Data >>> Row = %d, Col = %d",
                 rawData.getDataMatrix().getRowDimension(), rawData.getDataMatrix().getColumnDimension()));
         ;
