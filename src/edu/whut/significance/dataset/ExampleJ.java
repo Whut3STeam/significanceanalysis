@@ -8,7 +8,7 @@ import java.util.List;
 public class ExampleJ {
     List<Sample> samples;
 
-    static class Sample {
+    public static class Sample {
         String id;
         int length;
         double value;
@@ -17,7 +17,7 @@ public class ExampleJ {
         int count;
         double[][] data;
 
-        static class Windows {
+        public static class Windows {
             int midPos;
             int width;
             double value;

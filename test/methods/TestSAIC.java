@@ -16,10 +16,11 @@ public class TestSAIC {
     public void test(){
         RawData rawData=new RawData();
         ResultData resultData=new ResultData();
-        Reader.readSimulationData(rawData,"data//simulatedData//20170531155103.json");
+        String filePath="data//simulatedData//20170531155103.json";
+        Reader.readSimulationData(rawData,filePath);
         AbstractSig saic=new SAIC();
         saic.preprocess(rawData);
         saic.process(resultData);
-        System.out.println("FÖµ£º"+new SimuResultAnalysis(rawData,resultData).getFMeasure());
+        System.out.println("FÖµ£º"+new SimuResultAnalysis(rawData,resultData,filePath).getFMeasure());
     }
 }
