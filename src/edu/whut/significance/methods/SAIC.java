@@ -97,7 +97,7 @@ public class SAIC extends AbstractSig {
             int start = region.getStartId();
             int end = region.getEndId();
             m_log.info(String.format("Region [%d : %d : %d] Length = %d", start, (start + end) >> 1, end, region.getLength()));
-            sb.append(String.format("%d, %d, ",start,end));
+            sb.append(String.format("[%d, %d], ",start,end));
         }
         m_log.info(sb.substring(0, sb.length() - 2));
     }

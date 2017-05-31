@@ -54,14 +54,18 @@ public class SimuResultAnalysis {
 
     public void analysis() {
         //根据原始数据初始化P
-        for (int i = 0; i < probeNum; i++) {
-            for (int j = 0; j < sampleNum; j++) {
-                if (rawMatrix.getEntry(j, i) > ampThreshold || rawMatrix.getEntry(j, i) < delThreshold) {
-                    PArray[i] = true;
-                    P++;
-                    break;
-                }
-            }
+//        for (int i = 0; i < probeNum; i++) {
+//            for (int j = 0; j < sampleNum; j++) {
+//                if (rawMatrix.getEntry(j, i) > 0.55 || rawMatrix.getEntry(j, i) < delThreshold) {
+//                    PArray[i] = true;
+//                    P++;
+//                    break;
+//                }
+//            }
+//        }
+        for (int i = 401; i <= 600; i++){
+            PArray[i] = true;
+            P++;
         }
 
         //根据结果数据初始化T
