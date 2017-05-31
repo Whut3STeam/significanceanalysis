@@ -6,7 +6,12 @@ import edu.whut.significance.dataset.Reader;
 import edu.whut.significance.dataset.ResultData;
 import edu.whut.significance.methods.AbstractSig;
 import edu.whut.significance.methods.SAIC;
+import edu.whut.significance.util.BioLogger;
 import org.junit.Test;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.Logger;
 
 /**
  * Created by SunMing on 2017/5/24.
@@ -14,13 +19,25 @@ import org.junit.Test;
 public class TestSAIC {
     @Test
     public void test(){
-        RawData rawData=new RawData();
-        ResultData resultData=new ResultData();
-        String filePath="data//simulatedData//20170531155103.json";
-        Reader.readSimulationData(rawData,filePath);
-        AbstractSig saic=new SAIC();
+        Date date = new Date();
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String filename = String.format("Result_%s.log", df.format(date));
+        new BioLogger("data", filename);
+        date = null;
+        df = null;
+
+        String filePath = "data//simulatedData//a0.1b0.1_20170531162610.json";
+        RawData rawData = new RawData();
+        ResultData resultData = new ResultData();
+        Reader.readSimulationData(rawData, filePath);
+        Logger.getLogger("significanceAnalysis").info(String.format("Input Data >>> Row = %d, Col = %d",
+                rawData.getDataMatrix().getRowDimension(), rawData.getDataMatrix().getColumnDimension()));
+        ;
+        AbstractSig saic = new SAIC();
         saic.preprocess(rawData);
         saic.process(resultData);
-        System.out.println("FÖµ£º"+new SimuResultAnalysis(rawData,resultData,filePath).getFMeasure());
+        Logger.getLogger("significanceAnalysis").info("F Value = " +
+                new SimuResultAnalysis(rawData, resultData, filePath).getFMeasure());
+
     }
 }
