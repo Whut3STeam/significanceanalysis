@@ -5,7 +5,7 @@ import org.w3c.dom.ranges.Range;
 /**
  * Created by SunMing on 2017/5/23.
  */
-public class Region {
+public class Region implements Comparable<Region>{
     private int startId;
     private int endId;
 //    private int length;
@@ -35,6 +35,12 @@ public class Region {
     public void setEndId(int endId){
         this.endId=endId;
     }
+
+    @Override
+    public int compareTo(Region o) {
+        return Integer.compare(this.getStartId(), o.getStartId());
+    }
+
 //    public void setLength(int length){
 //        this.length=length;
 //    }

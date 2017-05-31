@@ -2,6 +2,7 @@ package edu.whut.significance.dataset;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by SunMing on 2017/5/23.
@@ -10,7 +11,7 @@ public class ResultData {
     private Set<Region> regionSet;
 
     public ResultData(){
-        regionSet=new HashSet<>();
+        regionSet=new TreeSet<>();
     }
 
     public Set<Region> getRegionSet() {

@@ -459,7 +459,7 @@ public class SAIC extends AbstractSig {
             //计算每个探针的和
             probeSum[0] = 0;
             for (int i = 1; i < probeNum; i++) {
-                probeSum[i] = probeSum[i - 1] + StatUtils.sum(randomPermuteMatrix.getRow(i));
+                probeSum[i] = probeSum[i - 1] + StatUtils.sum(randomPermuteMatrix.getRow(i - 1));
             }
 
             List<Integer> uniqueLengthSet = new ArrayList<>(lengthSet);
@@ -503,7 +503,7 @@ public class SAIC extends AbstractSig {
 //                    maxUScoreAti[0] = tempUScore;
 //                }
 //            }
-
+//
 //            //计算余下唯一长度的U值
 //            for (i = 1; i < uniqueLengthSet.size(); i++) {
 //                len = uniqueLengthSet.get(i);
