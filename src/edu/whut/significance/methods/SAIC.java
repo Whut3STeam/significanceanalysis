@@ -487,7 +487,7 @@ public class SAIC extends AbstractSig {
                     cnaIter.remove();
                     lenIter.remove();
                     uIter.remove();
-                    permuteSize=permuteCNARegions.size();
+//                    permuteSize=permuteCNARegions.size();
                 }
             }
 //            for(int i:tempRemoveId){
