@@ -8,7 +8,6 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Created by SunMing on 2017/5/24.
@@ -60,26 +59,29 @@ public class SAIC extends AbstractSig {
         List<Integer> idList=new ArrayList<>(idSet);
         Collections.sort(idList);
 
-        int tempStart=idList.get(0),tempId=idList.get(0),id;
-        for(int i=1;i<idList.size();i++){
-            id=idList.get(i);
-            if(id-tempId>1){
-                Region tempRegion=new Region();
+        if (idList.size() > 0) {
+
+            int tempStart = idList.get(0), tempId = idList.get(0), id;
+            for (int i = 1; i < idList.size(); i++) {
+                id = idList.get(i);
+                if (id - tempId > 1) {
+                    Region tempRegion = new Region();
+                    tempRegion.setStartId(tempStart);
+                    tempRegion.setEndId(tempId);
+                    tempRegion.setLength(tempId - tempStart + 1);
+                    resultData.getRegionSet().add(tempRegion);
+
+                    tempStart = id;
+                }
+                tempId = id;
+            }
+            if (tempId == idList.get(idList.size() - 1)) {
+                Region tempRegion = new Region();
                 tempRegion.setStartId(tempStart);
                 tempRegion.setEndId(tempId);
-                tempRegion.setLength(tempId-tempStart+1);
+                tempRegion.setLength(tempId - tempStart + 1);
                 resultData.getRegionSet().add(tempRegion);
-
-                tempStart=id;
             }
-            tempId=id;
-        }
-        if(tempId==idList.get(idList.size()-1)){
-            Region tempRegion=new Region();
-            tempRegion.setStartId(tempStart);
-            tempRegion.setEndId(tempId);
-            tempRegion.setLength(tempId-tempStart+1);
-            resultData.getRegionSet().add(tempRegion);
         }
     }
 
@@ -109,6 +111,13 @@ public class SAIC extends AbstractSig {
         rawMatrixs[1]=delRawMatrix;
 
         return rawMatrixs;
+    }
+
+    static class Parameters {
+        static double pccThreshold = 0.9;
+        static int permuteNum = 1000;
+        static double sigValueThreshold = 0.0476;
+        static int minCNALength = 6;
     }
 
     class Permute {
@@ -556,13 +565,15 @@ public class SAIC extends AbstractSig {
         public int getStart(){
             return start;
         }
-        public int getEnd(){
-            return end;
-        }
 
         public void setStart(int start){
             this.start=start;
         }
+
+        public int getEnd() {
+            return end;
+        }
+
         public void setEnd(int end){
             this.end=end;
         }
@@ -579,37 +590,47 @@ public class SAIC extends AbstractSig {
         public int getCnaId(){
             return cnaId;
         }
-        public IdRegion getIdRegion(){
-            return idRegion;
-        }
-        public int getLength(){
-            return length;
-        }
-        public double getuValue(){
-            return uValue;
-        }
-        public double getpValue(){
-            return pValue;
-        }
-        public int getSCATag(){
-            return SCATag;
-        }
 
         public void setCnaId(int cnaId){
             this.cnaId=cnaId;
         }
+
+        public IdRegion getIdRegion() {
+            return idRegion;
+        }
+
         public void setIdRegion(IdRegion idRegion){
             this.idRegion=idRegion;
         }
+
+        public int getLength() {
+            return length;
+        }
+
         public void setLength(int length){
             this.length=length;
         }
+
+        public double getuValue() {
+            return uValue;
+        }
+
         public void setuValue(double uValue){
             this.uValue=uValue;
         }
+
+        public double getpValue() {
+            return pValue;
+        }
+
         public void setpValue(double pValue){
             this.pValue=pValue;
         }
+
+        public int getSCATag() {
+            return SCATag;
+        }
+
         public void setSCATag(int SCATag){
             this.SCATag=SCATag;
         }
@@ -617,12 +638,5 @@ public class SAIC extends AbstractSig {
             return "id:"+cnaId+"\tstart:"+idRegion.getStart()+";\tend:"+idRegion.getEnd()+";\tUValue;"+uValue
                     +";\t\tPValue:"+pValue+";\t\tSCATag:"+SCATag;
         }
-    }
-
-    static class Parameters {
-        static double pccThreshold = 0.9;
-        static int permuteNum = 1000;
-        static double sigValueThreshold = 0.0476;
-        static int minCNALength = 6;
     }
 }

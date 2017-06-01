@@ -15,10 +15,10 @@ import java.util.*;
  * Created by SunMing on 2017/6/1.
  */
 public class RandomForest {
-    private RawData rawData;
-    private ResultData resultData;
     int sampleNum;
     int probeNum;
+    private RawData rawData;
+    private ResultData resultData;
     private AbstractSig saic;
 
     public RandomForest(RawData rawData,ResultData resultData){
@@ -40,7 +40,8 @@ public class RandomForest {
             ResultData tempResultData=new ResultData();
             saic.preprocess(tempRawData);
             saic.process(tempResultData);
-            resultDataList.add(tempResultData);
+            if (tempResultData.getRegionSet().size() > 0)
+                resultDataList.add(tempResultData);
         }
 
         vote(resultDataList);
@@ -123,7 +124,7 @@ public class RandomForest {
     }
 
     static class Parameters{
-        static int sampleSize=6;
+        static int sampleSize = 15;
         static int sampleFrequency=100;
         static int voteThreshold=50;
     }
