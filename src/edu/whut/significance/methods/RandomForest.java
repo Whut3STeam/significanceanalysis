@@ -123,7 +123,7 @@ public class RandomForest {
     }
 
     static class Parameters{
-        static int sampleSize=6;
+        static int sampleSize=15;
         static int sampleFrequency=100;
         static int voteThreshold=50;
     }
