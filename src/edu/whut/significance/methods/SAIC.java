@@ -543,7 +543,7 @@ public class SAIC extends AbstractSig {
 //                m_log.info(i+"\t\t"+tempCNARegion.getIdRegion().getStart()+"\t\t"+tempCNARegion.getIdRegion().getEnd()+"\t\t"
 //                        +tempCNARegion.getLength()+"\t\t"+tempCNARegion.getuValue()+"\t\t"+tempCNARegion.getpValue()+"\t\t"
 //                        +tempCNARegion.getSCATag());
-                System.out.println(tempCNARegion.toString());
+//                System.out.println(tempCNARegion.toString());
             }
             oneResultData.setRegionSet(tempResultRegions);
         }
