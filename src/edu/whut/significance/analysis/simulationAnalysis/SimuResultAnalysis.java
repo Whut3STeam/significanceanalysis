@@ -78,7 +78,7 @@ public class SimuResultAnalysis {
     }
 
     public void analysis(){
-        //根据json文件得出的exampleJ初始化真实区域
+        //根据json文件得出的exampleJ初始化真实区域range
         int midPos,width;
         RangeSet<Integer> range= TreeRangeSet.create();
         for(ExampleJ.Sample sample:exampleJ.getSamples()){
