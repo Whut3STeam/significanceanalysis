@@ -21,6 +21,7 @@ public class SAIC extends AbstractSig {
     public int rowNum;
     public int colNum;
     private Logger m_log;
+    private boolean enableDedugeInfo = false;
 
     public void preprocess(RawData rawData) {
         rawMatrix = rawData.getDataMatrix().transpose();
@@ -40,11 +41,11 @@ public class SAIC extends AbstractSig {
         ResultData delResultData = new ResultData();
 
         Permute ampPermute = new Permute(ampRawMatrix, ampResultData);
-        m_log.info(String.format("Staring to process amp :"));
+        m_log.info(String.format("Staring to process amp : --------------->"));
         ampPermute.processing();
 
         Permute delPermute = new Permute(delRawMatrix, delResultData);
-        m_log.info(String.format("Staring to process del :"));
+        m_log.info(String.format("Staring to process del : --------------->"));
         delPermute.processing();
 
         mergeResult(resultData, ampResultData, delResultData);
@@ -65,6 +66,8 @@ public class SAIC extends AbstractSig {
         }
         List<Integer> idList = new ArrayList<>(idSet);
         Collections.sort(idList);
+
+        if (idList.size() == 0) return;
 
         int tempStart = idList.get(0), tempId = idList.get(0), id;
         for (int i = 1; i < idList.size(); i++) {
@@ -87,15 +90,18 @@ public class SAIC extends AbstractSig {
             resultData.getRegionSet().add(tempRegion);
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("all regions for drawing : ");
-        for (Region region : resultData.getRegionSet()) {
-            int start = region.getStartId();
-            int end = region.getEndId();
-            m_log.info(String.format("Region [%d : %d : %d] Length = %d", start, (start + end) >> 1, end, region.getLength()));
-            sb.append(String.format("[%d, %d], ",start,end));
-        }
-        m_log.info(sb.substring(0, sb.length() - 2));
+        //if (enableDedugeInfo){
+            StringBuilder sb = new StringBuilder();
+            sb.append("the regions of one sample set: ");
+            for (Region region : resultData.getRegionSet()) {
+                int start = region.getStartId();
+                int end = region.getEndId();
+                m_log.info(String.format("Region [%d : %d : %d] Length = %d", start, (start + end) >> 1, end, region.getLength()));
+                sb.append(String.format("[%d, %d], ",start,end));
+            }
+            m_log.info(sb.substring(0, sb.length() - 2));
+        //}
+
     }
 
     public RealMatrix[] classify(RealMatrix rawMatrix) {
@@ -164,8 +170,10 @@ public class SAIC extends AbstractSig {
 
         public void processing() {
             getCNAs();
-            m_log.info(String.format("candidate Region = %d", idRegionSet.size()));
-            m_log.info(String.format("CNA region = %d", CNARegionSet.size()));
+            if (enableDedugeInfo){
+                m_log.info(String.format("candidate Region = %d", idRegionSet.size()));
+                m_log.info(String.format("CNA region = %d", CNARegionSet.size()));
+            }
 
             if (CNARegionSet.size() >= 2)
                 permuteDetection();
@@ -429,7 +437,10 @@ public class SAIC extends AbstractSig {
             int index;
             ArrayList<Integer> uniqueLengthSet = new ArrayList<>(lengthSet);
 
-            m_log.info("<<<< all CNARegion >>>>");
+            if (enableDedugeInfo){
+                m_log.info("<<<< all CNARegion >>>>");
+            }
+
             for (CNARegion region : CNARegionSet) {
                 pValue = 0.0;
                 index = uniqueLengthSet.indexOf(region.getLength());
@@ -442,7 +453,7 @@ public class SAIC extends AbstractSig {
 
                 pValue /= (Parameters.permuteNum + 1);
                 region.setpValue(pValue);
-                m_log.info("\t>>>>" + region.toString());
+                if (enableDedugeInfo) m_log.info("\t>>>>" + region.toString());
             }
         }
 
@@ -458,7 +469,7 @@ public class SAIC extends AbstractSig {
                 if (region.getpValue() < pScoreThreshold) {
                     region.setSCATag(1);
                     oneResultData.addRegion(region.getIdRegion().getStart(), region.getIdRegion().getEnd());
-                    m_log.info(region.toString());
+                    if (enableDedugeInfo) m_log.info(region.toString());
                 }
             }
         }

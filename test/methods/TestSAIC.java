@@ -30,13 +30,14 @@ public class TestSAIC {
         RawData rawData = new RawData();
         ResultData resultData = new ResultData();
         Reader.readSimulationData(rawData, filePath);
-        Logger.getLogger("significanceAnalysis").info(String.format("Input Data >>> Row = %d, Col = %d",
+        Logger m_log = Logger.getLogger("significanceAnalysis");
+        m_log.info(String.format("Input Data >>> Row = %d, Col = %d",
                 rawData.getDataMatrix().getRowDimension(), rawData.getDataMatrix().getColumnDimension()));
         ;
         AbstractSig saic = new SAIC();
         saic.preprocess(rawData);
         saic.process(resultData);
-        Logger.getLogger("significanceAnalysis").info("F Value = " +
+        m_log.info("F Value = " +
                 new SimuResultAnalysis(rawData, resultData, filePath).getFMeasure());
 
     }
