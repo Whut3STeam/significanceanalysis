@@ -8,6 +8,8 @@ import edu.whut.significance.dataset.Region;
 import edu.whut.significance.dataset.ResultData;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.util.MathArrays;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -27,7 +29,7 @@ public class RandomForest {
     public RandomForest(RawData rawData, ResultData resultData) {
         this.rawData = rawData;
         this.resultData = resultData;
-        sampleNum = rawData.getDataMatrix().getRowDimension() - 1;
+        sampleNum = rawData.getDataMatrix().getRowDimension();
         probeNum = rawData.getDataMatrix().getColumnDimension();
         m_log = Logger.getLogger("significanceAnalysis");
 
@@ -54,7 +56,7 @@ public class RandomForest {
     public void sample(List<RawData> rawDataList) {
         ArrayList<Integer> randomList = new ArrayList<>();
         for (int i = 0; i < sampleNum; i++) {
-            randomList.add(i + 1);
+            randomList.add(i);
         }
 
         for (int i = 0; i < Parameters.sampleFrequency; i++) {
@@ -86,7 +88,7 @@ public class RandomForest {
             }
         }
 
-        Set<Integer> idSet = new HashSet<>();
+        Set<Integer> idSet = new TreeSet<>();
         for (int i = 0; i < probeNum; i++) {
             if (enableDedugeInfo) System.out.println(i + "\t" + voteNum[i]);
             if (voteNum[i] >= Parameters.voteThreshold) {
@@ -95,7 +97,6 @@ public class RandomForest {
         }
 
         List<Integer> idList = new ArrayList<>(idSet);
-        Collections.sort(idList);
 
         int tempStart = idList.get(0), tempId = idList.get(0), id;
         for (int i = 1; i < idList.size(); i++) {
@@ -128,9 +129,32 @@ public class RandomForest {
         m_log.info(sb.substring(0, sb.length() - 2));
     }
 
+    public void vote2(List<ResultData> resultDataList) {
+        double[] voteNum = new double[probeNum];
+        for (ResultData tempResultData : resultDataList) {
+            RangeSet<Integer> rangeSet = TreeRangeSet.create();
+            for (Region region : tempResultData.getRegionSet()) {
+                rangeSet.add(Range.closed(region.getStartId(), region.getEndId()));
+            }
+
+            for (int i = 0; i < probeNum; i++) {
+                if (rangeSet.contains(i)) {
+                    voteNum[i]++;
+                }
+            }
+        }
+
+        double[] voteNumNorm = MathArrays.normalizeArray(voteNum, 1);
+        double max = StatUtils.max(voteNumNorm);
+
+
+
+    }
+
+
     static class Parameters {
-        static int sampleSize = 6;
+        static int sampleSize = 3;
         static int sampleFrequency = 100;
-        static int voteThreshold = 50;
+        static double voteThreshold = sampleFrequency / 2;
     }
 }
