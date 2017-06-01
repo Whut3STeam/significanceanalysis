@@ -15,7 +15,7 @@ public class TestRandomForest {
     public void test(){
         RawData rawData=new RawData();
         ResultData resultData=new ResultData();
-        String filePath="data//simulatedData//20170531155103.json";
+        String filePath="data//simulatedData//a0.2b0.2_20170531165631.json";
         Reader.readSimulationData(rawData,filePath);
 
         RandomForest randomForest=new RandomForest(rawData,resultData);

@@ -60,7 +60,7 @@ public class RandomForest {
         for(int i=0;i< Parameters.sampleFrequency;i++){
             Collections.shuffle(randomList);
             RawData tempRawData=new RawData();
-            RealMatrix tempRawMatrix=new BlockRealMatrix(sampleNum+1,probeNum);
+            RealMatrix tempRawMatrix=new BlockRealMatrix(Parameters.sampleSize+1,probeNum);
 
             tempRawMatrix.setRow(0,ids);
 
@@ -123,7 +123,7 @@ public class RandomForest {
     }
 
     static class Parameters{
-        static int sampleSize=10;
+        static int sampleSize=6;
         static int sampleFrequency=100;
         static int voteThreshold=50;
     }
