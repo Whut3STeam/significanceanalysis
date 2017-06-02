@@ -6,10 +6,10 @@ import com.google.common.collect.TreeRangeSet;
 import edu.whut.significance.dataset.RawData;
 import edu.whut.significance.dataset.Region;
 import edu.whut.significance.dataset.ResultData;
+import edu.whut.significance.util.BioToolbox;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.StatUtils;
-import org.apache.commons.math3.util.MathArrays;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -50,7 +50,8 @@ public class RandomForest {
                 resultDataList.add(tempResultData);
         }
 
-        vote(resultDataList);
+        //vote(resultDataList);
+        vote2(resultDataList);
     }
 
     public void sample(List<RawData> rawDataList) {
@@ -144,11 +145,56 @@ public class RandomForest {
             }
         }
 
-        double[] voteNumNorm = MathArrays.normalizeArray(voteNum, 1);
-        double max = StatUtils.max(voteNumNorm);
+        resultData.setRegionSet(getRegions(voteNum));
 
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n\t\tthe fianl regions: ");
+        for (Region region : resultData.getRegionSet()) {
+            int start = region.getStartId();
+            int end = region.getEndId();
+            m_log.info(String.format("\n\t\t RF - Region [%d : %d : %d] Length = %d",
+                    start, (start + end) >> 1, end, region.getLength()));
+            sb.append(String.format("[%d, %d], ",start,end));
+        }
+        m_log.info(sb.substring(0, sb.length() - 2));
 
+    }
 
+    private Set<Region> getRegions(double[] voteNum){
+        double[] data = BioToolbox.GaussianBlur(voteNum,5,1);
+
+        double[] diff = new double[data.length];
+        for (int i = 1; i < data.length; i++){
+            diff[i] = data[i] - data[i - 1];
+        }
+
+        double max = StatUtils.max(diff);
+        double min = StatUtils.min(diff);
+
+        int k1 = 0, k2 = 0;
+        for (int i = 0; i < diff.length; i++) {
+            if (diff[i] == max) k1 = i;
+            if (diff[i] == min) k2 = i;
+        }
+
+        //if (enableDedugeInfo){
+            for (int i = -10; i < 11; i++){
+                m_log.info(String.format("left = [%d:%.2f], right = [%d:%.2f]",
+                        k1 + i,data[k1 + i], k2 + i,data[k2 + i]));
+            }
+        //}
+        int posLeft = k1 < k2 ? k1:k2;
+        int posRight = k1 > k2 ? k1:k2;
+
+        Set<Region> result = new TreeSet<>();
+        double thresh = Math.min(data[k1],data[k2]);
+        for (int i = posLeft; i <= posRight; i++){
+            if (data[i] < thresh){ //应该分成不同的区域, 通过寻找上升下降沿最陡峭之处
+                return null;
+            }
+        }
+        result.add(new Region(posLeft,posRight));
+        return result;//如果有多个区域还有问题的
     }
 
 
