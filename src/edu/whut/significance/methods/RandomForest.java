@@ -50,7 +50,7 @@ public class RandomForest {
                 resultDataList.add(tempResultData);
         }
 
-        //vote(resultDataList);
+//        vote(resultDataList);
         vote2(resultDataList);
     }
 
@@ -145,7 +145,40 @@ public class RandomForest {
             }
         }
 
-        resultData.setRegionSet(getRegions(voteNum));
+        //resultData.setRegionSet(getRegions(voteNum));
+
+        double[] data = BioToolbox.GaussianBlur(voteNum,3,1);
+        double thresh = getThreshold(voteNum);
+        m_log.info(String.format("the thresh = %.3f", thresh));
+        Set<Integer> idSet = new TreeSet<>();
+        for (int i = 0; i < probeNum; i++) {
+            if (enableDedugeInfo) System.out.println(i + "\t" + voteNum[i]);
+            if (data[i] >= thresh) {
+                idSet.add(i);
+            }
+        }
+
+        List<Integer> idList = new ArrayList<>(idSet);
+
+        int tempStart = idList.get(0), tempId = idList.get(0), id;
+        for (int i = 1; i < idList.size(); i++) {
+            id = idList.get(i);
+            if (id - tempId > 1) {
+                Region tempRegion = new Region();
+                tempRegion.setStartId(tempStart);
+                tempRegion.setEndId(tempId);
+                resultData.getRegionSet().add(tempRegion);
+
+                tempStart = id;
+            }
+            tempId = id;
+        }
+        if (tempId == idList.get(idList.size() - 1)) {
+            Region tempRegion = new Region();
+            tempRegion.setStartId(tempStart);
+            tempRegion.setEndId(tempId);
+            resultData.getRegionSet().add(tempRegion);
+        }
 
         StringBuilder sb = new StringBuilder();
         sb.append("\n\t\tthe fianl regions: ");
@@ -160,8 +193,8 @@ public class RandomForest {
 
     }
 
-    private Set<Region> getRegions(double[] voteNum){
-        double[] data = BioToolbox.GaussianBlur(voteNum,5,1);
+    private Set<Region> getRegions(double[] data){
+        //double[] data = BioToolbox.GaussianBlur(voteNum,3,1);
 
         double[] diff = new double[data.length];
         for (int i = 1; i < data.length; i++){
@@ -196,6 +229,45 @@ public class RandomForest {
         result.add(new Region(posLeft,posRight));
         return result;//如果有多个区域还有问题的
     }
+
+    private double getThreshold(double[] voteNum){
+        double[] data = BioToolbox.GaussianBlur(voteNum,3,1);
+
+        double[] diff = new double[data.length];
+        for (int i = 1; i < data.length; i++){
+            diff[i] = data[i] - data[i - 1];
+        }
+
+        double max = StatUtils.max(diff);
+        double min = StatUtils.min(diff);
+
+        int k1 = 0, k2 = 0;
+        for (int i = 0; i < diff.length; i++) {
+            if (diff[i] == max) k1 = i;
+            if (diff[i] == min) k2 = i;
+        }
+
+        //if (enableDedugeInfo){
+        for (int i = -10; i < 11; i++){
+            m_log.info(String.format("left = [%d:%.2f], right = [%d:%.2f]",
+                    k1 + i,data[k1 + i], k2 + i,data[k2 + i]));
+        }
+        //}
+
+        double t1 = data[k1] > data[k2] ? data[k2] : data[k1];
+        double t2 = data[k1] > data[k2] ? data[k1] : data[k2];
+        if (t1 < Parameters.voteThreshold && t2 > Parameters.voteThreshold) {
+            return t1;
+        } else if (t2 < Parameters.voteThreshold) {
+            return t2;
+        } else if (t1 > Parameters.voteThreshold) {
+            return t1;
+        }
+
+        return Parameters.voteThreshold;
+    }
+
+
 
 
     static class Parameters {

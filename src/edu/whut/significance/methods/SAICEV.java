@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 /**
  * Created by SunMing on 2017/5/24.
  */
-public class SAIC extends AbstractSig {
+public class SAICEV extends AbstractSig {
     public ResultData resultData;
     public RealMatrix rawMatrix;
     public int rowNum;
@@ -148,7 +148,7 @@ public class SAIC extends AbstractSig {
 
     static class Parameters {
         static double pccThreshold = 0.9;
-        static int permuteNum = 1000;
+        static int permuteNum = 50;
         static double sigValueThreshold = 0.0476;
         static int minCNALength = 6;
     }
@@ -347,11 +347,13 @@ public class SAIC extends AbstractSig {
                 RealMatrix randomPermuteMatrix = new BlockRealMatrix(permuteProbeSize, colNum);
                 for (int j = 0; j < colNum; j++) {
                     Collections.shuffle(idArray);
+                    List<Integer> selectedIDs = idArray.subList(0, idArray.size() - 3);
+
                     double[] newCol = new double[permuteProbeSize];
                     double[] orignalCol = oneRawDataMatrix.getColumn(j);
 
                     int k = 0;
-                    for (int id : idArray) {
+                    for (int id : selectedIDs) {
                         CNARegion region = permuteCNARegions.get(id);
                         int begin = region.getIdRegion().getStart();
                         int len = region.getLength();

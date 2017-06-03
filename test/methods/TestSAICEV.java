@@ -5,7 +5,7 @@ import edu.whut.significance.dataset.RawData;
 import edu.whut.significance.dataset.Reader;
 import edu.whut.significance.dataset.ResultData;
 import edu.whut.significance.methods.AbstractSig;
-import edu.whut.significance.methods.SAIC;
+import edu.whut.significance.methods.SAICEV;
 import edu.whut.significance.util.BioLogger;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 /**
  * Created by SunMing on 2017/5/24.
  */
-public class TestSAIC {
+public class TestSAICEV {
     @Test
     public void test(){
         Date date = new Date();
@@ -34,7 +34,7 @@ public class TestSAIC {
         m_log.info(String.format("Input Data >>> Row = %d, Col = %d",
                 rawData.getDataMatrix().getRowDimension(), rawData.getDataMatrix().getColumnDimension()));
         ;
-        AbstractSig saic = new SAIC();
+        AbstractSig saic = new SAICEV();
         saic.preprocess(rawData);
         saic.process(resultData);
         m_log.info("F Value = " +
