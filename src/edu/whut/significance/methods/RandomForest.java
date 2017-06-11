@@ -43,6 +43,7 @@ public class RandomForest {
 
         for (RawData tempRawData : rawDataList) {
             saic = new SAIC();
+//            saic = new SAICEV();
             ResultData tempResultData = new ResultData();
             saic.preprocess(tempRawData);
             saic.process(tempResultData);

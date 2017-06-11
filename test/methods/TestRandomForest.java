@@ -25,7 +25,7 @@ public class TestRandomForest {
         date = null;
         df = null;
 
-        String filePath = "data//simulatedData//a0.2b0.2_20170531165631.json";
+        String filePath = "data/simulatedData/a0.2b0.2_20170531165631.json";
         RawData rawData = new RawData();
         ResultData resultData = new ResultData();
         Reader.readSimulationData(rawData, filePath);

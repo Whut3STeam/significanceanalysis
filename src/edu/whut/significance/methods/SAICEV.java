@@ -1,13 +1,17 @@
 package edu.whut.significance.methods;
 
+import com.google.common.primitives.Doubles;
 import edu.whut.significance.dataset.RawData;
 import edu.whut.significance.dataset.Region;
 import edu.whut.significance.dataset.ResultData;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealMatrixChangingVisitor;
+import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.apache.commons.math3.util.MathArrays;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -148,7 +152,7 @@ public class SAICEV extends AbstractSig {
 
     static class Parameters {
         static double pccThreshold = 0.9;
-        static int permuteNum = 50;
+        static int permuteNum = 20;
         static double sigValueThreshold = 0.0476;
         static int minCNALength = 6;
     }
@@ -341,13 +345,16 @@ public class SAICEV extends AbstractSig {
             for (int i = 0; i < permuteCNARegions.size(); i++) {
                 idArray.add(i);
             }
-
-            for (int i = 0; i < Parameters.permuteNum; i++) {
+            int Count = idArray.size();
+            //for (int i = 0; i < Parameters.permuteNum; i++) {
+            int i = 0;
+            List<Double> EntropyList = new ArrayList<>();
+            while(i < Parameters.permuteNum){
                 //一次交换开始
                 RealMatrix randomPermuteMatrix = new BlockRealMatrix(permuteProbeSize, colNum);
                 for (int j = 0; j < colNum; j++) {
                     Collections.shuffle(idArray);
-                    List<Integer> selectedIDs = idArray.subList(0, idArray.size() - 3);
+                    List<Integer> selectedIDs = idArray.subList(0, Count);
 
                     double[] newCol = new double[permuteProbeSize];
                     double[] orignalCol = oneRawDataMatrix.getColumn(j);
@@ -362,13 +369,98 @@ public class SAICEV extends AbstractSig {
                     }
                     randomPermuteMatrix.setColumn(j, newCol);
                 }
+//                int row = randomPermuteMatrix.getRowDimension();
+//                int col = randomPermuteMatrix.getColumnDimension();
+//                randomPermuteMatrix = randomPermuteMatrix.getSubMatrix(0,(int)(row * 0.6),0,col - 1);
+//
+                double entropy = calculateEntropy2(randomPermuteMatrix, 16);
 
-                findMaxUScore(randomPermuteMatrix, maxUScore[i]);
+
+                if (EntropyList.size() == 0){
+                    EntropyList.add(entropy);
+                    findMaxUScore(randomPermuteMatrix, maxUScore, i);
+                    i++;
+                }else{
+                    double mean = StatUtils.mean(Doubles.toArray(EntropyList));
+                    if (enableDedugeInfo)
+                    System.out.println(String.format("entropy = %.6f, mean = %.6f, count = %d",entropy,mean,i));
+                    if (mean > entropy){
+                        EntropyList.add(entropy);
+                        findMaxUScore(randomPermuteMatrix, maxUScore, i);
+                        i++;
+                    }
+                }
+
             }
         }
 
+        private double calculateEntropy(RealMatrix data, int binCount) {
+
+            EmpiricalDistribution ed = new EmpiricalDistribution(binCount);
+            int row = data.getRowDimension();
+            int col = data.getColumnDimension();
+            double[] temp = new double[row * col];
+            for (int i = 0; i < col; i++) {
+                double[] oneCol = data.getColumn(i);
+                System.arraycopy(oneCol, 0, temp, i * row, row);
+            }
+
+            ed.load(temp);
+            List<SummaryStatistics> binList = ed.getBinStats();
+
+            double[] bins = new double[binList.size()];
+            for (int i = 0; i < bins.length; i++) {
+                if (binList.get(i).getMean() != 0)
+                    bins[i] = binList.get(i).getN();
+            }
+
+            int count = bins.length;
+            double[] values = MathArrays.normalizeArray(bins, 1);
+
+            double entropy2 = 0;
+            for (int i = 0; i < count; i++) {
+                if (values[i] > 0)
+                    entropy2 -= values[i] * Math.log(values[i]);
+            }
+            double entropy = entropy2 / Math.log(binCount);
+            return entropy;
+        }
+
+        private double calculateEntropy2(RealMatrix data, int binCount){
+            EmpiricalDistribution ed = new EmpiricalDistribution(binCount);
+            int row = data.getRowDimension();
+            int col = data.getColumnDimension();
+            double[] temp = new double[row];
+            for (int i = 0; i < row; i++) {
+                double[] oneRow = data.getRow(i);
+                temp[i] = StatUtils.mean(oneRow);
+            }
+
+            ed.load(temp);
+            List<SummaryStatistics> binList = ed.getBinStats();
+
+            double[] bins = new double[binList.size()];
+            for (int i = 0; i < bins.length; i++) {
+                if (binList.get(i).getMean() != 0)
+                    bins[i] = binList.get(i).getN();
+            }
+
+            int count = bins.length;
+            double[] values = MathArrays.normalizeArray(bins, 1);
+
+            double entropy2 = 0;
+            for (int i = 0; i < count; i++) {
+                if (values[i] > 0)
+                    entropy2 -= values[i] * Math.log(values[i]);
+            }
+            double entropy = entropy2 / Math.log(binCount);
+            return entropy;
+        }
+
+
         //找最大U值，在第 i 次实验
-        public void findMaxUScore(RealMatrix randomPermuteMatrix, double[] maxUScoreAti) {
+        public void findMaxUScore(RealMatrix randomPermuteMatrix, double[][] maxUScore, int pos) {
+
             double tempUScore;
             int probeNum = randomPermuteMatrix.getRowDimension();
             double[] probeSum = new double[probeNum + 1];
@@ -379,21 +471,40 @@ public class SAICEV extends AbstractSig {
             }
 
             List<Integer> uniqueLengthSet = new ArrayList<>(lengthSet);
+//            int[][] posArray = new int[3][2];
+//            int step = (int) (probeNum / 6);
+//            for (int K = 0; K < 3; K++) {
+//                posArray[K][0] = (0 + K) * step;
+//                posArray[K][1] = (4 + K) * step;
+//            }
+//            posArray[2][1] = probeNum - 1;
             for (int length : uniqueLengthSet) {
+
                 int index = uniqueLengthSet.indexOf(length);
-                maxUScoreAti[index] = 0.0;
+                //maxUScoreAti[index] = 0.0;
 
                 int endPos = probeNum - length + 1;
                 int front, back;
 
+                List<Double> uScoreList = new LinkedList<>();
                 for (front = 0, back = front + length; back < endPos; front++, back++) {
                     double regionSum = probeSum[back] - probeSum[front];
                     tempUScore = Math.abs(regionSum) / (colNum * length);
-                    if (tempUScore > maxUScoreAti[index]) {
-                        maxUScoreAti[index] = tempUScore;
-                    }
+//                    if (tempUScore > maxUScoreAti[index]) {
+//                        maxUScoreAti[index] = tempUScore;
+//                    }
+                    uScoreList.add(tempUScore);
                 }
+//                for (int K = 0; K < 3; K++) {
+//                    double[] maxUScoreAti = maxUScore[3*pos + K];
+//                    List<Double> temp = new LinkedList<>(uScoreList.subList(posArray[K][0], posArray[K][1] - 2 * length));
+//                    maxUScoreAti[index] = Collections.max(temp);
+//                }
+                double[] maxUScoreAti = maxUScore[pos];
+                List<Double> temp = new LinkedList<>(uScoreList);
+                maxUScoreAti[index] = Collections.max(temp);
             }
+
         }
 
         //排除SCAs并更新permuteCNARegions
