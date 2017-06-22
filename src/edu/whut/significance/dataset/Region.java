@@ -8,6 +8,12 @@ public class Region {
     private int endId;
     private int length;
 
+    public Region(){}
+    public Region(int startId,int endId){
+        this.startId=startId;
+        this.endId=endId;
+        this.length=endId-startId+1;
+    }
     public int getStartId(){
         return startId;
     }

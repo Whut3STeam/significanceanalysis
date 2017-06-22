@@ -16,8 +16,17 @@ public class TestSampleGenerator {
                 new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
         SampleGEN sg=new SampleGEN(filePath);
         //SampleGEN sg=new SampleGEN();
-        sg.generate(2000,20,500,200,0.58,0.1,0.1,0.1);
-        //sg.generate(3,400,200,-1,0.25,0.25,0.25);
+        int winCount=3;
+        //以下数组的长度必须为winCount的值
+        int[] midPos={400,1600,2500};
+        int[] width={200,150,100};
+        double[] LRRVal={0.58,0.6,0.62};
+        double[] alpha={0.1,0.1,0.1};
+        double[] beta={0.1,0.1,0.1};
+        sg.generate(3000,20,0,0.1,
+                0,0,0,
+                10,0.35,
+                3,midPos,width,LRRVal,alpha,beta);
         sg.saveSamples();
     }
 }

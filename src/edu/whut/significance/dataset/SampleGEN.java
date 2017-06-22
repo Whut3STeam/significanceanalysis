@@ -5,10 +5,10 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -37,62 +37,106 @@ public class SampleGEN {
         exampleJ.samples=new ArrayList<>();
     }
 
-    public void generate(int length,int number,int midPos,int width,double LRRVal,double sigma,double alpha,double beta){
+    public void generate(int length,int sCount,double baselineVal,double sigma,
+                         int breakPoint, double baselineInrcement, double baselineFluctuation,
+                         int passengerCount,double passengerVal,
+                         int winCount,int[] midPos,int[] width,double[] LLRVal,double[] alpha,double[] beta){
+        //初始化json对象
         ExampleJ.Sample sample=new ExampleJ.Sample();
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
         sample.id=df.format(new Date());
-        sample.length=length;
-        sample.value=0;
-        sample.count=number;
-        sample.sigma=sigma;
-        sample.windows=new ExampleJ.Sample.Windows();
-        sample.windows.midPos=midPos;
-        sample.windows.width=width;
-        sample.windows.value=LRRVal;
-        sample.windows.alpha=alpha;
-        sample.windows.beta=beta;
-        sample.data=new double[number][sample.length];
+        sample.length=length;//样本长度
+        sample.sCount =sCount;//样本个数
+        sample.baselineValue =baselineVal;//基线值
+        sample.sigma=sigma;//强度噪声
+        sample.breakPoint=breakPoint;//基线分割点
+        sample.baselineInrcement=baselineInrcement;//第二个基线相对于第一个基线的变化值
+        sample.baselineFluctuation=baselineFluctuation;//基点的波动百分比
+        sample.passengerCount=passengerCount;//乘客基因数量
+        sample.passengerVal=passengerVal;//乘客的取值
+        sample.winCount=winCount;//窗口数量
+        sample.data=new double[sCount][length];
+
+        ExampleJ.Sample.Window[] windows=new ExampleJ.Sample.Window[winCount];
+        for(int i=0;i<winCount;i++){
+            ExampleJ.Sample.Window window=new ExampleJ.Sample.Window();
+            window.midPos=midPos[i];
+            window.width=width[i];
+            window.LRRVal=LLRVal[i];
+            window.alpha=alpha[i];
+            window.beta=beta[i];
+
+            windows[i]=window;
+        }
+        sample.windows=windows;
 
         double[] singleSample=new double[sample.length];
-        for(int i=0;i<number;i++) {
-            sample.data[i] = singleSamplegenerate(sample.length,(int) (midPos + width * rdg.nextGaussian(0, beta)),
-                    (int) (width + rdg.nextGaussian(1, alpha * width)),
-                    LRRVal, sigma);
+
+        //生成数据
+        for(int i=0;i<sCount;i++){
+            //生成窗口的中点和宽度值数组
+            int[] tempMidPos=new int[winCount];
+            int[] tempWidth=new int[winCount];
+            for(int j=0;j<winCount;j++){
+                tempMidPos[j]=(int) (midPos[j] + width[j] * rdg.nextGaussian(0, beta[j]));
+                tempWidth[j]=(int) (width[j] + rdg.nextGaussian(1, alpha[j] * width[j]));
+            }
+
+            //按照窗口参数生成一条数据
+            sample.data[i] = singleSamplegenerate(length,baselineVal,passengerCount,passengerVal,
+                    breakPoint,baselineInrcement,baselineFluctuation,
+                    winCount,tempMidPos,tempWidth,LLRVal,sigma);
+
+
         }
         exampleJ.samples.add(sample);
     }
 
 
-    public double[] singleSamplegenerate(int length,int midPos,int width,double LRRVal,double sigma){
+    public double[] singleSamplegenerate(int length,double baselineVal,int passengerCount,double passengerVal,
+                                         int breakPoint,double baselineInrcement,double baselineFluction,
+                                         int winCount,int[] midPos,int[] width,double[] LRRVal,double sigma){
         double[] singleSample=new double[length];
 
+        //添加基线值
+        for(int i=0;i<length;i++){
+            singleSample[i]=baselineVal;
+        }
+
         //添加passengers
-        int passengerStart;
-        Random rd=new Random();
-        for(int i=0;i<3;i++){
-            passengerStart=rd.nextInt(length-50);
-            for(int j=passengerStart;j<passengerStart+50;j++){
-                if(LRRVal>=0.58)
-                    singleSample[j]=0.35;
-                else
-                    singleSample[j]=-0.5;
+        int passengerStart,passengerEnd;
+        for(int i=0;i<passengerCount;i++){
+            passengerStart=rdg.nextInt(0,length);
+            passengerEnd=passengerStart+50;
+            passengerEnd=passengerEnd>length?length:passengerEnd;
+
+            for(int j=passengerStart;j<passengerEnd;j++){
+                singleSample[j]=passengerVal;
             }
         }
 
         //添加drivers
-        for(int i=midPos-width/2;i<midPos+width/2;i++){
-            singleSample[i]=LRRVal;
+        for(int i=0;i<winCount;i++){
+            for(int j=midPos[i]-width[i]/2;j<midPos[i]+width[i]/2;j++){
+                singleSample[j]=LRRVal[i];
+            }
         }
 
-        /*for(int i=0;i<midPos-width/2;i++){
-            singleSample[i]=rdg.nextGaussian(0,sigma);
+        //添加第二个基线
+        int range = (int)(breakPoint*baselineFluction);//波动范围
+        breakPoint+=rdg.nextInt(-range,range);
+        breakPoint=breakPoint<0?0:(breakPoint>(length-1)?(length-1):breakPoint);
+        for(int i=breakPoint;i<length;i++){
+            singleSample[i]+=baselineInrcement;
         }
-        for(int i=midPos-width/2;i<midPos+width/2;i++){
-            singleSample[i]=LRRVal+rdg.nextGaussian(0,sigma);
+
+        //添加强度噪声
+        if(sigma>0){
+            for(int i=0;i<length;i++){
+                singleSample[i]+=rdg.nextGaussian(0,sigma);
+            }
         }
-        for(int i=midPos+width/2;i<1000;i++){
-            singleSample[i]=rdg.nextGaussian(0,sigma);
-        }*/
+
         return singleSample;
     }
 

@@ -82,9 +82,11 @@ public class SimuResultAnalysis {
         int midPos,width;
         RangeSet<Integer> range= TreeRangeSet.create();
         for(ExampleJ.Sample sample:exampleJ.getSamples()){
-            midPos=sample.getWindows().getMidPos();
-            width=sample.getWindows().getWidth();
-            range.add(Range.closed(midPos-width/2,midPos+width/2));
+            for (ExampleJ.Sample.Window window:sample.getWindows()){
+                midPos=window.getMidPos();
+                width=window.getWidth();
+                range.add(Range.closed(midPos-width/2,midPos+width/2));
+            }
         }
 
         //根据原始数据初始化P
