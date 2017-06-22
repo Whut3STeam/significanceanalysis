@@ -9,6 +9,7 @@ import edu.whut.significance.dataset.ResultData;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Created by SunMing on 2017/5/24.
@@ -18,13 +19,17 @@ public class JISTIC extends AbstractSig {
     RealMatrix rawMatrix;
     int rowNum;
     int colNum;
+    private Logger m_log;
+    private boolean enableDedugeInfo = false;
 
     @Override
     public void preprocess(RawData rawData) {
-        rawMatrix = rawData.getDataMatrix().getSubMatrix(1,
-                rawData.getDataMatrix().getRowDimension()-1, 0, rawData.getDataMatrix().getColumnDimension()-1).transpose();
+        rawMatrix = rawData.getDataMatrix().transpose();
         rowNum = rawMatrix.getRowDimension();
         colNum = rawMatrix.getColumnDimension();
+        m_log = Logger.getLogger("significanceAnalysis");
+
+        m_log.info(String.format("Current Row = %d, Col = %d", rowNum, colNum));
     }
 
     @Override
@@ -39,19 +44,30 @@ public class JISTIC extends AbstractSig {
 
     public void mergeResult(ResultData resultData, List<SignificantRegionJ> ampRegions, List<SignificantRegionJ> delRegions){
         RangeSet<Integer> rangeSet= TreeRangeSet.create();
+
+        m_log.info("\n");
+        m_log.info("the amp regions:");
         for(SignificantRegionJ region:ampRegions){
             rangeSet.add(Range.closed(region.start,region.end));
-        }
-        for(SignificantRegionJ region:delRegions){
-            rangeSet.add(Range.closed(region.start,region.end));
+            m_log.info(Range.closed(region.start,region.end).toString());
         }
 
+        m_log.info("\n");
+        m_log.info("the del regions:");
+        for(SignificantRegionJ region:delRegions){
+            rangeSet.add(Range.closed(region.start,region.end));
+            m_log.info(Range.closed(region.start,region.end).toString());
+        }
+
+        m_log.info("\n");
+        m_log.info("the regions of one sample set: ");
         int start,end;
         for(Range range:rangeSet.asRanges()){
             start=(int)range.lowerEndpoint();//[422..596]的形式
             end=(int)range.upperEndpoint();
             Region tempRegion=new Region(start,end);
             resultData.getRegionSet().add(tempRegion);
+            m_log.info(String.format("Region [%d : %d : %d] Length = %d", start, (start + end) >> 1, end, tempRegion.getLength()));
         }
     }
 }
@@ -245,7 +261,7 @@ class Distribution {
                 iter.previous();
             double qval = (pval * num_markers) / significant_markers;
             Integer m = null;
-            while (iter.nextIndex() < significant_markers)//保存的是相同G值得最后一个位置
+            while (iter.nextIndex() < significant_markers)//保存的是相同G值的最后一个位置
                 m = iter.next();
             gscore_to_qvalue.put(m.intValue(), qval);
         }
@@ -405,9 +421,11 @@ class SignificantRegionJ extends RegionJ {
     List<RegionJ> subregions;
     List<PeakRegionJ> peaks;
 
+    static boolean limited_peeloff = true;
     static int sparam = 11;//s值
     static int[] peeloff_gscore_thres = {0, 0};
     static double peeloff_qval_thres = Float.NaN;
+//    static double peeloff_qval_thres = 0.25;
 
     SignificantRegionJ(Distribution distribution, List<Marker> markers) {
         super(distribution.type, markers);
@@ -516,105 +534,105 @@ class SignificantRegionJ extends RegionJ {
 
             // limits for peeloff生成剥离的限制条件，即Gn值
             int max_peeloff[] = new int[2];
+            if(limited_peeloff) {
+                // aberration remaining from peak for each sample
+                int[] remain = new int[num_samples];
+                // aberration added on top of remaining for each sample
+                int[] added = new int[num_samples];
+                int totalremain = 0;
+                int totaladded = 0;
 
-            // aberration remaining from peak for each sample
-            int[] remain = new int[num_samples];
-            // aberration added on top of remaining for each sample
-            int[] added = new int[num_samples];
-            int totalremain = 0;
-            int totaladded = 0;
-
-            // obtaining forward limit
-            ListIterator<Marker> iter = markers.listIterator(peak_end - 1);
-            max_peeloff[1] = iter.nextIndex();
-
-            // initialize with peak end marker初始化峰结束的位点
-            Marker marker = iter.next();
-            for (int sample = 0; sample < num_samples; sample++) {
-                remain[sample] = 0;
-                if (!peeled_off.get(max_peeloff[1]).contains(sample))
-                    remain[sample] = marker.GscoreContribution(type, sample);
-                totalremain += remain[sample];
-            }
-
-            // iterate forward while under threshold
-            while (iter.hasNext()) {
-                totalremain = 0;
-                totaladded = 0;
+                // obtaining forward limit
+                ListIterator<Marker> iter = markers.listIterator(peak_end - 1);
                 max_peeloff[1] = iter.nextIndex();
-                marker = iter.next();
+
+                // initialize with peak end marker初始化峰结束的位点
+                Marker marker = iter.next();
                 for (int sample = 0; sample < num_samples; sample++) {
-                    int markerCont = 0;
-                    if (!peeled_off.get(max_peeloff[1]).contains(sample)) {
-                        markerCont = marker.GscoreContribution(type, sample);
-                        if (markerCont < remain[sample]) {
-                            int end = Math.min(max_peeloff[1] + sparam, markers.size());//避免超出整个样本的右边界，sparam是s值
-                            for (int lfmid = max_peeloff[1]; lfmid < end; lfmid++) {
-                                //求Gr值，向右
-                                markerCont = Math.min(Math.max(markerCont, markers.get(lfmid).GscoreContribution(type, sample)), remain[sample]);
+                    remain[sample] = 0;
+                    if (!peeled_off.get(max_peeloff[1]).contains(sample))
+                        remain[sample] = marker.GscoreContribution(type, sample);
+                    totalremain += remain[sample];
+                }
+
+                // iterate forward while under threshold
+                while (iter.hasNext()) {
+                    totalremain = 0;
+                    totaladded = 0;
+                    max_peeloff[1] = iter.nextIndex();
+                    marker = iter.next();
+                    for (int sample = 0; sample < num_samples; sample++) {
+                        int markerCont = 0;
+                        if (!peeled_off.get(max_peeloff[1]).contains(sample)) {
+                            markerCont = marker.GscoreContribution(type, sample);
+                            if (markerCont < remain[sample]) {
+                                int end = Math.min(max_peeloff[1] + sparam, markers.size());//避免超出整个样本的右边界，sparam是s值
+                                for (int lfmid = max_peeloff[1]; lfmid < end; lfmid++) {
+                                    //求Gr值，向右
+                                    markerCont = Math.min(Math.max(markerCont, markers.get(lfmid).GscoreContribution(type, sample)), remain[sample]);
+                                }
                             }
                         }
+
+                        added[sample] = Math.max(markerCont - remain[sample], 0);//Gn值
+                        remain[sample] = markerCont - added[sample];
+                        totalremain += remain[sample];
+                        totaladded += Math.max(markerCont - remain[sample], 0);
                     }
 
-                    added[sample] = Math.max(markerCont - remain[sample], 0);//Gn值
-                    remain[sample] = markerCont - added[sample];
-                    totalremain += remain[sample];
-                    totaladded += Math.max(markerCont - remain[sample], 0);
+                    // finished if cutoff or no peak remaining
+                    if (totalremain == 0 || totaladded >= peeloff_gscore_thres[type.ordinal()]) {
+                        break;
+                    }
+
                 }
 
-                // finished if cutoff or no peak remaining
-                if (totalremain == 0 || totaladded >= peeloff_gscore_thres[type.ordinal()]) {
-                    break;
-                }
+                // obtaining backward limit
+                iter = markers.listIterator(peak_start + 1);
 
-            }
-
-            // obtaining backward limit
-            iter = markers.listIterator(peak_start + 1);
-
-            // initialize with peak start marker初始化峰开始的位点
-            max_peeloff[0] = iter.previousIndex();
-            marker = iter.previous();
-            totalremain = 0;
-            for (int sample = 0; sample < num_samples; sample++) {
-                remain[sample] = 0;
-                if (!peeled_off.get(max_peeloff[0]).contains(sample))
-                    remain[sample] = marker.GscoreContribution(type, sample);
-                totalremain += remain[sample];
-            }
-
-            // iterate backwards while under threshold
-            while (iter.hasPrevious()) {
-                totalremain = 0;
-                totaladded = 0;
+                // initialize with peak start marker初始化峰开始的位点
                 max_peeloff[0] = iter.previousIndex();
                 marker = iter.previous();
+                totalremain = 0;
                 for (int sample = 0; sample < num_samples; sample++) {
+                    remain[sample] = 0;
+                    if (!peeled_off.get(max_peeloff[0]).contains(sample))
+                        remain[sample] = marker.GscoreContribution(type, sample);
+                    totalremain += remain[sample];
+                }
 
-                    int markerCont = 0;
-                    if (!peeled_off.get(max_peeloff[0]).contains(sample)) {
-                        markerCont = marker.GscoreContribution(type, sample);
-                        if (markerCont < remain[sample]) {
-                            int end = Math.max(max_peeloff[0] - sparam, 0);//避免超出整个样本的左边界，sparam是s值
-                            for (int lfmid = max_peeloff[0]; lfmid >= end; lfmid--) {
-                                //求Gr值，向左
-                                markerCont = Math.min(Math.max(markerCont, markers.get(lfmid).GscoreContribution(type, sample)), remain[sample]);
+                // iterate backwards while under threshold
+                while (iter.hasPrevious()) {
+                    totalremain = 0;
+                    totaladded = 0;
+                    max_peeloff[0] = iter.previousIndex();
+                    marker = iter.previous();
+                    for (int sample = 0; sample < num_samples; sample++) {
+
+                        int markerCont = 0;
+                        if (!peeled_off.get(max_peeloff[0]).contains(sample)) {
+                            markerCont = marker.GscoreContribution(type, sample);
+                            if (markerCont < remain[sample]) {
+                                int end = Math.max(max_peeloff[0] - sparam, 0);//避免超出整个样本的左边界，sparam是s值
+                                for (int lfmid = max_peeloff[0]; lfmid >= end; lfmid--) {
+                                    //求Gr值，向左
+                                    markerCont = Math.min(Math.max(markerCont, markers.get(lfmid).GscoreContribution(type, sample)), remain[sample]);
+                                }
                             }
                         }
+                        added[sample] = Math.max(markerCont - remain[sample], 0);
+                        remain[sample] = markerCont - added[sample];
+                        totalremain += remain[sample];
+                        totaladded += Math.max(markerCont - remain[sample], 0);
                     }
-                    added[sample] = Math.max(markerCont - remain[sample], 0);
-                    remain[sample] = markerCont - added[sample];
-                    totalremain += remain[sample];
-                    totaladded += Math.max(markerCont - remain[sample], 0);
-                }
 
-                // finished if cutoff or no peak remaining
-                if (totalremain == 0 || totaladded >= peeloff_gscore_thres[type.ordinal()]) {
-                    break;
-                }
+                    // finished if cutoff or no peak remaining
+                    if (totalremain == 0 || totaladded >= peeloff_gscore_thres[type.ordinal()]) {
+                        break;
+                    }
 
+                }
             }
-
             peel_off_loop:
             for (int sample = 0; sample < num_samples; sample++) {
                 for (ListIterator<Marker> iter1 = markers
@@ -639,8 +657,10 @@ class SignificantRegionJ extends RegionJ {
 
 //                        peeloff_limits[0] = Math.max(peeloff_limits[0], max_peeloff[0]);
 //                        peeloff_limits[1] = Math.min(peeloff_limits[1], max_peeloff[1]);
-                        peeloff_limits[0] = Math.max(peeloff_limits[0], max_peeloff[0]+1);
-                        peeloff_limits[1] = Math.min(peeloff_limits[1], max_peeloff[1]-1);
+                        if(limited_peeloff){
+                            peeloff_limits[0] = Math.max(peeloff_limits[0], max_peeloff[0]+1);
+                            peeloff_limits[1] = Math.min(peeloff_limits[1], max_peeloff[1]-1);
+                        }
 
                         //这一步是要将被剥离的位点的G值置0
                         for (int marker1 = peeloff_limits[0]; marker1 <= peeloff_limits[1]; marker1++)

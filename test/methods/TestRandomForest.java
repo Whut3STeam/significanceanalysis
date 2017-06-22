@@ -25,7 +25,7 @@ public class TestRandomForest {
         date = null;
         df = null;
 
-        String filePath = "data/simulatedData/a0.2b0.2_20170531165631.json";
+        String filePath = "data/simulatedData/20170622183459.json";
         RawData rawData = new RawData();
         ResultData resultData = new ResultData();
         Reader.readSimulationData(rawData, filePath);
@@ -35,7 +35,6 @@ public class TestRandomForest {
                 rawData.getDataMatrix().getRowDimension(), rawData.getDataMatrix().getColumnDimension()));
 
         RandomForest randomForest=new RandomForest(rawData,resultData);
-        m_log.info("F Value = " +
-                new SimuResultAnalysis(rawData, resultData, filePath).getFMeasure());
+        new SimuResultAnalysis(rawData, resultData, filePath).getFMeasure();
     }
 }

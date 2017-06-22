@@ -43,6 +43,8 @@ public class SimuResultAnalysis {
     private double FMeasure;//F值
 
     public SimuResultAnalysis(RawData rawData,ResultData resultData,String filePath){
+        m_log = Logger.getLogger("significanceAnalysis");
+
         try {
             File infile = new File(filePath);
             InputStreamReader isr = new InputStreamReader(new FileInputStream(infile));
@@ -121,10 +123,12 @@ public class SimuResultAnalysis {
         //计算准确率，召回率
         precision=(double)TP/(TP+FP);
         recall=(double)TP/(TP+FN);
-        System.out.println("准确率："+precision);
-        System.out.println("召回率："+recall);
+        m_log.info("\n");
+        m_log.info("准确率："+precision);
+        m_log.info("召回率："+recall);
 
         //计算F值
         FMeasure=2*precision*recall/(precision+recall);
+        m_log.info("F值："+FMeasure);
     }
 }

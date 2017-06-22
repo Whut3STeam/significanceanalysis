@@ -44,6 +44,7 @@ public class RandomForest {
         for (RawData tempRawData : rawDataList) {
             saic = new SAIC();
 //            saic = new SAICEV();
+//            saic=new JISTIC();
             ResultData tempResultData = new ResultData();
             saic.preprocess(tempRawData);
             saic.process(tempResultData);
@@ -51,6 +52,8 @@ public class RandomForest {
                 resultDataList.add(tempResultData);
         }
 
+        m_log.info("\n");
+        m_log.info("RandomForest----------------------->");
 //        vote(resultDataList);
         vote2(resultDataList);
     }
@@ -121,13 +124,15 @@ public class RandomForest {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("\n\nthe fianl regions: ");
+        sb.append("the fianl regions: ");
+        m_log.info("\n");
         for (Region region : resultData.getRegionSet()) {
             int start = region.getStartId();
             int end = region.getEndId();
             m_log.info(String.format("Region [%d : %d : %d] Length = %d", start, (start + end) >> 1, end, region.getLength()));
             sb.append(String.format("[%d, %d], ",start,end));
         }
+        m_log.info("\n");
         m_log.info(sb.substring(0, sb.length() - 2));
     }
 
@@ -150,6 +155,7 @@ public class RandomForest {
 
         double[] data = BioToolbox.GaussianBlur(voteNum,3,1);
         double thresh = getThreshold(voteNum);
+        m_log.info("\n");
         m_log.info(String.format("the thresh = %.3f", thresh));
         Set<Integer> idSet = new TreeSet<>();
         for (int i = 0; i < probeNum; i++) {
@@ -182,14 +188,16 @@ public class RandomForest {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("\n\t\tthe fianl regions: ");
+        sb.append("the fianl regions: ");
+        m_log.info("\n");
         for (Region region : resultData.getRegionSet()) {
             int start = region.getStartId();
             int end = region.getEndId();
-            m_log.info(String.format("\n\t\t RF - Region [%d : %d : %d] Length = %d",
+            m_log.info(String.format("RF - Region [%d : %d : %d] Length = %d",
                     start, (start + end) >> 1, end, region.getLength()));
             sb.append(String.format("[%d, %d], ",start,end));
         }
+        m_log.info("\n");
         m_log.info(sb.substring(0, sb.length() - 2));
 
     }
@@ -212,6 +220,7 @@ public class RandomForest {
         }
 
         //if (enableDedugeInfo){
+        m_log.info("\n");
             for (int i = -10; i < 11; i++){
                 m_log.info(String.format("left = [%d:%.2f], right = [%d:%.2f]",
                         k1 + i,data[k1 + i], k2 + i,data[k2 + i]));
@@ -249,6 +258,7 @@ public class RandomForest {
         }
 
         //if (enableDedugeInfo){
+        m_log.info("\n");
         for (int i = -10; i < 11; i++){
             m_log.info(String.format("left = [%d:%.2f], right = [%d:%.2f]",
                     k1 + i,data[k1 + i], k2 + i,data[k2 + i]));

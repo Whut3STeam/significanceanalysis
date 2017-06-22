@@ -41,10 +41,12 @@ public class SAIC extends AbstractSig {
         ResultData delResultData = new ResultData();
 
         Permute ampPermute = new Permute(ampRawMatrix, ampResultData);
+        m_log.info("\n");
         m_log.info(String.format("Staring to process amp : --------------->"));
         ampPermute.processing();
 
         Permute delPermute = new Permute(delRawMatrix, delResultData);
+        m_log.info("\n");
         m_log.info(String.format("Staring to process del : --------------->"));
         delPermute.processing();
 
@@ -93,12 +95,14 @@ public class SAIC extends AbstractSig {
         //if (enableDedugeInfo){
             StringBuilder sb = new StringBuilder();
             sb.append("the regions of one sample set: ");
+            m_log.info("\n");
             for (Region region : resultData.getRegionSet()) {
                 int start = region.getStartId();
                 int end = region.getEndId();
                 m_log.info(String.format("Region [%d : %d : %d] Length = %d", start, (start + end) >> 1, end, region.getLength()));
                 sb.append(String.format("[%d, %d], ",start,end));
             }
+            m_log.info("\n");
             m_log.info(sb.substring(0, sb.length() - 2));
         //}
 
