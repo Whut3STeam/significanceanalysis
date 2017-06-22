@@ -30,7 +30,7 @@ public class Reader {
 
         int num = 0;
         for (ExampleJ.Sample sample : exampleJ.samples) {
-            num += sample.count;
+            num += sample.sCount;
         }
 
         rawData.setData(new BlockRealMatrix(num, exampleJ.samples.get(0).length));

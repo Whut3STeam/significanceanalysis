@@ -8,16 +8,7 @@ import org.w3c.dom.ranges.Range;
 public class Region implements Comparable<Region>{
     private int startId;
     private int endId;
-//    private int length;
-
-
-    public Region() {
-    }
-
-    public Region(int startId, int endId) {
-        this.startId = startId;
-        this.endId = endId;
-    }
+    private int length;
 
     public Region(){}
     public Region(int startId,int endId){
