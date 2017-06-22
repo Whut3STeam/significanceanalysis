@@ -19,6 +19,12 @@ public class Region implements Comparable<Region>{
         this.endId = endId;
     }
 
+    public Region(){}
+    public Region(int startId,int endId){
+        this.startId=startId;
+        this.endId=endId;
+        this.length=endId-startId+1;
+    }
     public int getStartId(){
         return startId;
     }

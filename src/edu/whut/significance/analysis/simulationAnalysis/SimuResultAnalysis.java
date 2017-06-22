@@ -42,35 +42,34 @@ public class SimuResultAnalysis {
     private double recall;//召回率
     private double FMeasure;//F值
 
-    public SimuResultAnalysis(RawData rawData, ResultData resultData, String filePath) {
-        m_log = Logger.getLogger("significanceAnalysis");
-
+    public SimuResultAnalysis(RawData rawData,ResultData resultData,String filePath){
         try {
             File infile = new File(filePath);
             InputStreamReader isr = new InputStreamReader(new FileInputStream(infile));
             BufferedReader br = new BufferedReader(isr);
-            String jsonString = "";
+            String jsonString="";
             String line;
-            while ((line = br.readLine()) != null) {
-                jsonString += line;
+            while ((line=br.readLine())!=null){
+                jsonString+=line;
             }
-            exampleJ = JSON.parseObject(jsonString, ExampleJ.class);
-        } catch (Exception e) {
+            exampleJ= JSON.parseObject(jsonString,ExampleJ.class);
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
 
-        this.rawData = rawData;
-        this.resultData = resultData;
-        rawMatrix = rawData.getDataMatrix();
-        GlobalParameters globalParameters = new GlobalParameters();
-        ampThreshold = globalParameters.getAmpThreshold();
-        delThreshold = globalParameters.getDelThreshold();
-        probeNum = rawMatrix.getColumnDimension();
-        sampleNum = rawMatrix.getRowDimension();
-        PArray = new boolean[probeNum];
-        TArray = new boolean[probeNum];
-        P = 0;
-        T = 0;
+        this.rawData=rawData;
+        this.resultData=resultData;
+        rawMatrix=rawData.getDataMatrix();
+        GlobalParameters globalParameters=new GlobalParameters();
+        ampThreshold=globalParameters.getAmpThreshold();
+        delThreshold=globalParameters.getDelThreshold();
+        probeNum=rawMatrix.getColumnDimension();
+        sampleNum=rawMatrix.getRowDimension()-1;
+        PArray =new boolean[probeNum];
+        TArray =new boolean[probeNum];
+        P=0;
+        T=0;
         analysis();
     }
 
@@ -78,49 +77,54 @@ public class SimuResultAnalysis {
         return FMeasure;
     }
 
-    public void analysis() {
-        //根据json文件得出的exampleJ初始化真实区域
-        int midPos, width;
-        RangeSet<Integer> range = TreeRangeSet.create();
-        for (ExampleJ.Sample sample : exampleJ.getSamples()) {
-            midPos = sample.getWindows().getMidPos();
-            width = sample.getWindows().getWidth();
-            range.add(Range.closed(midPos - width / 2, midPos + width / 2));
+    public void analysis(){
+        //根据json文件得出的exampleJ初始化真实区域range
+        int midPos,width;
+        RangeSet<Integer> range= TreeRangeSet.create();
+        for(ExampleJ.Sample sample:exampleJ.getSamples()){
+            for (ExampleJ.Sample.Window window:sample.getWindows()){
+                midPos=window.getMidPos();
+                width=window.getWidth();
+                range.add(Range.closed(midPos-width/2,midPos+width/2));
+            }
         }
 
         //根据原始数据初始化P
-        for (int i = 0; i < probeNum; i++) {
-            if (range.contains(i)) {
+        for(int i=0;i<probeNum;i++){
+            if(range.contains(i)) {
                 PArray[i] = true;
                 P++;
             }
         }
 
         //根据结果数据初始化T
-        for (Region resultRegion : resultData.getRegionSet()) {
-            for (int i = resultRegion.getStartId(); i <= resultRegion.getEndId(); i++) {
-                TArray[i] = true;
+        for(Region resultRegion:resultData.getRegionSet()){
+            for(int i=resultRegion.getStartId();i<=resultRegion.getEndId();i++){
+                TArray[i]=true;
                 T++;
             }
         }
 
         //给TP，FP，FN赋值
-        for (int i = 0; i < probeNum; i++) {
-            if (PArray[i] && TArray[i]) {
+        for(int i=0;i<probeNum;i++){
+            if(PArray[i]&&TArray[i]){
                 TP++;
-            } else if ((!PArray[i]) && TArray[i]) {
+            }
+            else if((!PArray[i])&&TArray[i]){
                 FP++;
-            } else if (PArray[i] && (!TArray[i])) {
+            }
+            else if(PArray[i]&&(!TArray[i])){
                 FN++;
             }
         }
 
         //计算准确率，召回率
-        precision = (double) TP / (TP + FP);
-        recall = (double) TP / (TP + FN);
-        m_log.info(String.format("准确率：%.6f\t 召回率：%.6f", precision, recall));
+        precision=(double)TP/(TP+FP);
+        recall=(double)TP/(TP+FN);
+        System.out.println("准确率："+precision);
+        System.out.println("召回率："+recall);
 
         //计算F值
-        FMeasure = 2.0 * precision * recall / (precision + recall);
+        FMeasure=2*precision*recall/(precision+recall);
     }
 }

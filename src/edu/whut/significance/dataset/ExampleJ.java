@@ -11,80 +11,30 @@ public class ExampleJ {
     public List<Sample> getSamples() {
         return samples;
     }
-
     public void setSamples(List<Sample> samples) {
         this.samples = samples;
     }
 
     public static class Sample {
         String id;
-        int length;
-        double value;
-        double sigma;
-        Windows windows;
-        int count;
+        int length;//样本长度
+        int sCount;//样本个数
+        double baselineValue;//基线值
+        double sigma;//强度噪声
+        int winCount;//窗口数量
+        Window[] windows;
         double[][] data;
+        int breakPoint;//基线分割点
+        double baselineInrcement;//第二个基线相对于第一个基线的变化值
+        double baselineFluctuation;//基点的波动百分比
+        int passengerCount;//乘客基因数量
+        double passengerVal;//乘客的取值
 
-        public String getId() {
-            return id;
-        }
 
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public int getLength() {
-            return length;
-        }
-
-        public void setLength(int length) {
-            this.length = length;
-        }
-
-        public double getValue() {
-            return value;
-        }
-
-        public void setValue(double value) {
-            this.value = value;
-        }
-
-        public double getSigma() {
-            return sigma;
-        }
-
-        public void setSigma(double sigma) {
-            this.sigma = sigma;
-        }
-
-        public Windows getWindows() {
-            return windows;
-        }
-
-        public void setWindows(Windows windows) {
-            this.windows = windows;
-        }
-
-        public int getCount() {
-            return count;
-        }
-
-        public void setCount(int count) {
-            this.count = count;
-        }
-
-        public double[][] getData() {
-            return data;
-        }
-
-        public void setData(double[][] data) {
-            this.data = data;
-        }
-
-        public static class Windows {
+        public static class Window {
             int midPos;
             int width;
-            double value;
+            double LRRVal;
             double alpha;
             double beta;
 
@@ -104,12 +54,12 @@ public class ExampleJ {
                 this.width = width;
             }
 
-            public double getValue() {
-                return value;
+            public double getLRRVal() {
+                return LRRVal;
             }
 
-            public void setValue(double value) {
-                this.value = value;
+            public void setLRRVal(double LRRVal) {
+                this.LRRVal = LRRVal;
             }
 
             public double getAlpha() {
@@ -127,6 +77,90 @@ public class ExampleJ {
             public void setBeta(double beta) {
                 this.beta = beta;
             }
+        }
+
+        public String getId() {
+            return id;
+        }
+        public void setId(String id) {
+            this.id = id;
+        }
+        
+        public int getLength() {
+            return length;
+        }
+        public void setLength(int length) {
+            this.length = length;
+        }
+        
+        public int getsCount() {
+            return sCount;
+        }
+        public void setsCount(int sCount) {
+            this.sCount = sCount;
+        }
+        
+        public double getBaselineValue() {
+            return baselineValue;
+        }
+        public void setBaselineValue(double baselineValue) {
+            this.baselineValue = baselineValue;
+        }
+        
+        public double getSigma() {
+            return sigma;
+        }
+        public void setSigma(double sigma) {
+            this.sigma = sigma;
+        }
+        public int getWinCount() {
+            return winCount;
+        }
+        public void setWinCount(int winCount) {
+            this.winCount = winCount;
+        }
+
+        public Window[] getWindows() {
+            return windows;
+        }
+        public void setWindows(Window[] windows) {
+            this.windows = windows;
+        }
+        
+        public double[][] getData() {
+            return data;
+        }
+        public void setData(double[][] data) {
+            this.data = data;
+        }
+
+
+        public int getBreakPoint() {
+            return breakPoint;
+        }
+        public void setBreakPoint(int breakPoint) {
+            this.breakPoint = breakPoint;
+        }
+
+        public double getBaselineInrcement() {
+            return baselineInrcement;
+        }
+        public void setBaselineInrcement(double baselineInrcement) {
+            this.baselineInrcement = baselineInrcement;
+        }
+
+        public double getBaselineFluctuation() {
+            return baselineFluctuation;
+        }
+        public void setBaselineFluctuation(double baselineFluctuation) {
+            this.baselineFluctuation = baselineFluctuation;
+        }
+
+        public int getPassengerCount() {
+            return passengerCount;
+        }
+        public void setPassengerCount(int passengerCount) {
+            this.passengerCount = passengerCount;
         }
     }
 }
