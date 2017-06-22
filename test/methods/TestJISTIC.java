@@ -16,7 +16,7 @@ public class TestJISTIC {
     public void test(){
         RawData rawData=new RawData();
         ResultData resultData=new ResultData();
-        String filePath="data//simulatedData//20170622113917.json";
+        String filePath="data//simulatedData//20170622183459.json";
         Reader.readSimulationData(rawData,filePath);
         AbstractSig jistic=new JISTIC();
         jistic.preprocess(rawData);

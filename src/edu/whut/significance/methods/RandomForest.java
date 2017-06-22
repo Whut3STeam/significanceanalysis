@@ -15,8 +15,6 @@ import java.util.*;
  * Created by SunMing on 2017/6/1.
  */
 public class RandomForest {
-    private RawData rawData;
-    private ResultData resultData;
     int sampleNum;
     int probeNum;
     private RawData rawData;
