@@ -38,8 +38,10 @@ public class SimuResultAnalysis {
     private int TP;//正确找到包含在模拟CNA区域的一条CNA探针
     private int FP;//找到的CNA探针不包含在模拟CNA区域
     private int FN;//没有被找到的包含在模拟CNA区域的探针
+    private int TN;
     private double precision;//准确率
-    private double recall;//召回率
+    private double recall;//召回率(TPR)
+    private double FPR;
     private double FMeasure;//F值
 
     public SimuResultAnalysis(RawData rawData,ResultData resultData,String filePath){
@@ -67,7 +69,7 @@ public class SimuResultAnalysis {
         ampThreshold=globalParameters.getAmpThreshold();
         delThreshold=globalParameters.getDelThreshold();
         probeNum=rawMatrix.getColumnDimension();
-        sampleNum=rawMatrix.getRowDimension()-1;
+        sampleNum=rawMatrix.getRowDimension();
         PArray =new boolean[probeNum];
         TArray =new boolean[probeNum];
         P=0;
@@ -118,14 +120,20 @@ public class SimuResultAnalysis {
             else if(PArray[i]&&(!TArray[i])){
                 FN++;
             }
+            else if(!PArray[i]&&(!TArray[i])){
+                TN++;
+            }
         }
 
         //计算准确率，召回率
         precision=(double)TP/(TP+FP);
         recall=(double)TP/(TP+FN);
+        FPR=(double)FP /(FP + TN);
+
         m_log.info("\n");
         m_log.info("准确率："+precision);
-        m_log.info("召回率："+recall);
+        m_log.info("召回率(TPR)："+recall);
+        m_log.info("FPR:"+FPR);
 
         //计算F值
         FMeasure=2*precision*recall/(precision+recall);

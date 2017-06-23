@@ -26,7 +26,7 @@ public class TestSAIC {
         date = null;
         df = null;
 
-        String filePath = "data//simulatedData//20170622183459.json";
+        String filePath = "data//simulatedData//20170623123114.json";
         RawData rawData = new RawData();
         ResultData resultData = new ResultData();
         Reader.readSimulationData(rawData, filePath);

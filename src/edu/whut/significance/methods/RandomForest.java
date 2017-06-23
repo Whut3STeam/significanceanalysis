@@ -31,6 +31,7 @@ public class RandomForest {
         this.resultData = resultData;
         sampleNum = rawData.getDataMatrix().getRowDimension();
         probeNum = rawData.getDataMatrix().getColumnDimension();
+//        Parameters.sampleSize=(int) (sampleNum*0.3);
         m_log = Logger.getLogger("significanceAnalysis");
 
         process();
@@ -42,9 +43,9 @@ public class RandomForest {
         sample(rawDataList);
 
         for (RawData tempRawData : rawDataList) {
-            saic = new SAIC();
+//            saic = new SAIC();
 //            saic = new SAICEV();
-//            saic=new JISTIC();
+            saic=new JISTIC();
             ResultData tempResultData = new ResultData();
             saic.preprocess(tempRawData);
             saic.process(tempResultData);
@@ -282,7 +283,7 @@ public class RandomForest {
 
 
     static class Parameters {
-        static int sampleSize = 3;
+        static int sampleSize = 10;
         static int sampleFrequency = 100;
         static double voteThreshold = sampleFrequency / 2;
     }
